@@ -382,13 +382,17 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
                   child: ElevatedButton(
                     onPressed: exercises.isNotEmpty && nameController.text.isNotEmpty && selectedDays.isNotEmpty
                         ? () async {
+                            final authViewModel = context.read<AuthViewModel>();
                             await context.read<RoutineViewModel>().createRoutine(
                               name: nameController.text,
                               description: descController.text.isNotEmpty ? descController.text : null,
                               exercises: exercises,
                               weekDays: selectedDays.toList()..sort(),
                             );
-                            if (mounted) Navigator.pop(context);
+                            if (mounted) {
+                              Navigator.pop(context);
+                              context.read<RoutineViewModel>().loadRoutines(authViewModel.currentUserId!);
+                            }
                           }
                         : null,
                     child: const Text('Crear Rutina'),
@@ -434,9 +438,11 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
+              final authViewModel = context.read<AuthViewModel>();
               await viewModel.deleteRoutine(routineId);
               if (context.mounted) {
                 Navigator.pop(context);
+                viewModel.loadRoutines(authViewModel.currentUserId!);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Rutina eliminada')),
                 );

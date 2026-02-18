@@ -100,6 +100,7 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
     }
 
     final progressViewModel = context.read<ProgressViewModel>();
+    final authViewModel = context.read<AuthViewModel>();
     final success = await progressViewModel.addProgress(
       weight: weight,
       photoFile: _selectedImage,
@@ -110,6 +111,7 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
         _weightController.clear();
         _selectedImage = null;
       });
+      progressViewModel.loadProgress(authViewModel.currentUserId!);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('¡Progreso guardado exitosamente!'),
@@ -135,6 +137,17 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              final authViewModel = context.read<AuthViewModel>();
+              if (authViewModel.currentUserId != null) {
+                context.read<ProgressViewModel>().loadProgress(authViewModel.currentUserId!);
+              }
+            },
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           labelColor: AppTheme.primaryColor,
@@ -149,8 +162,24 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildAddProgressTab(),
-          _buildStatisticsTab(),
+          RefreshIndicator(
+            onRefresh: () async {
+              final authViewModel = context.read<AuthViewModel>();
+              if (authViewModel.currentUserId != null) {
+                context.read<ProgressViewModel>().loadProgress(authViewModel.currentUserId!);
+              }
+            },
+            child: _buildAddProgressTab(),
+          ),
+          RefreshIndicator(
+            onRefresh: () async {
+              final authViewModel = context.read<AuthViewModel>();
+              if (authViewModel.currentUserId != null) {
+                context.read<ProgressViewModel>().loadProgress(authViewModel.currentUserId!);
+              }
+            },
+            child: _buildStatisticsTab(),
+          ),
         ],
       ),
     );

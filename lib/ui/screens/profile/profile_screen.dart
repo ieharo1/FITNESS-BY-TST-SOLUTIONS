@@ -66,6 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
       final profileViewModel = context.read<ProfileViewModel>();
+      final authViewModel = context.read<AuthViewModel>();
       
       if (_selectedImage != null) {
         await profileViewModel.updateProfilePhoto(_selectedImage!);
@@ -83,6 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _isEditing = false;
           _selectedImage = null;
         });
+        profileViewModel.loadUser(authViewModel.currentUserId!);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('¡Perfil actualizado exitosamente!'),
