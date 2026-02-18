@@ -23,6 +23,7 @@ class HomeViewModel extends ChangeNotifier {
   UserModel? _user;
   int _workoutCount = 0;
   double _latestWeight = 0.0;
+  DateTime? _lastWeightDate;
   List<WorkoutModel> _recentWorkouts = [];
   List<RoutineModel> _routines = [];
   Set<String> _completedRoutinesToday = {};
@@ -37,6 +38,7 @@ class HomeViewModel extends ChangeNotifier {
   UserModel? get user => _user;
   int get workoutCount => _workoutCount;
   double get latestWeight => _latestWeight;
+  DateTime? get lastWeightDate => _lastWeightDate;
   List<WorkoutModel> get recentWorkouts => _recentWorkouts;
   List<RoutineModel> get routines => _routines;
   Set<String> get completedRoutinesToday => _completedRoutinesToday;
@@ -119,6 +121,19 @@ class HomeViewModel extends ChangeNotifier {
           createdAt: DateTime.now(),
         ),
       );
+    }
+  }
+
+  Future<void> updateTodayWeight(double weight) async {
+    final userId = _authRepository.currentUserId;
+    if (userId == null) return;
+
+    final updatedUser = _user?.copyWith(weight: weight);
+    if (updatedUser != null) {
+      await _userRepository.updateUser(updatedUser);
+      _latestWeight = weight;
+      _lastWeightDate = DateTime.now();
+      notifyListeners();
     }
   }
 

@@ -15,11 +15,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _showedDailyPopup = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
+      _checkDailyWeight();
     });
   }
 
@@ -28,6 +31,169 @@ class _HomeScreenState extends State<HomeScreen> {
     if (authViewModel.currentUserId != null) {
       context.read<HomeViewModel>().initialize(authViewModel.currentUserId!);
     }
+  }
+
+  void _checkDailyWeight() async {
+    if (_showedDailyPopup) return;
+    
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    
+    final homeViewModel = context.read<HomeViewModel>();
+    final lastWeightDate = homeViewModel.lastWeightDate;
+    final today = DateTime.now();
+    
+    final shouldShow = lastWeightDate == null || 
+        lastWeightDate.year != today.year || 
+        lastWeightDate.month != today.month || 
+        lastWeightDate.day != today.day;
+    
+    if (shouldShow && homeViewModel.user != null) {
+      _showedDailyPopup = true;
+      _showDailyWeightDialog();
+    }
+  }
+
+  void _showDailyWeightDialog() {
+    final weightController = TextEditingController();
+    final homeViewModel = context.read<HomeViewModel>();
+    
+    if (homeViewModel.user != null && homeViewModel.user!.weight > 0) {
+      weightController.text = homeViewModel.user!.weight.toString();
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.monitor_weight, color: AppTheme.primaryColor),
+            SizedBox(width: 8),
+            Text('¿Cómo estás hoy?'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Actualiza tu peso para seguir tu progreso',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: weightController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Peso actual (kg)',
+                prefixIcon: Icon(Icons.monitor_weight_outlined),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Más tarde'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final weight = double.tryParse(weightController.text);
+              if (weight != null && weight > 0) {
+                await homeViewModel.updateTodayWeight(weight);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('¡Peso actualizado!'),
+                      backgroundColor: AppTheme.successColor,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Actualizar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCelebrationDialog(String routineName) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.celebration,
+              color: Colors.amber,
+              size: 80,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '¡FELICIDADES! 🎉',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Rutina "$routineName" completada',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.add, color: Colors.green),
+                  const Text(
+                    ' +1 Entrenamiento',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '¡Sigue así! 💪',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+              ),
+              child: const Text('¡Genial!'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -521,12 +687,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onChanged: (value) {
                 if (value == true && !isCompleted) {
                   homeViewModel.completeRoutine(routine);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('¡Rutina "${routine.name}" completada! +1 entrenamiento'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
+                  _showCelebrationDialog(routine.name);
                 }
               },
             ),
@@ -590,6 +751,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildDrawerItem(context, Icons.timer, 'Temporizador', '/timer', 5),
           _buildDrawerItem(context, Icons.restaurant, 'Nutrición', '/nutrition', 6),
           _buildDrawerItem(context, Icons.flag, 'Metas y Progreso', '/goals', 7),
+          _buildDrawerItem(context, Icons.emoji_events, 'Logros', '/achievements', 11),
+          _buildDrawerItem(context, Icons.download, 'Exportar Datos', '/export', 12),
           const Divider(),
           _buildDrawerItem(context, Icons.trending_up, 'Progreso', '/progress', 8),
           _buildDrawerItem(context, Icons.person, 'Perfil', '/profile', 9),

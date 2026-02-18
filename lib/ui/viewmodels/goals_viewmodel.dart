@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../../repository/goals_repository.dart';
 import '../../repository/auth_repository.dart';
+import '../../repository/workout_repository.dart';
 import '../../model/goals_model.dart';
 
 enum GoalsLoadingState { initial, loading, loaded, saving, error }
@@ -9,15 +10,18 @@ enum GoalsLoadingState { initial, loading, loaded, saving, error }
 class GoalsViewModel extends ChangeNotifier {
   final GoalsRepository _goalsRepository = GoalsRepository();
   final AuthRepository _authRepository = AuthRepository();
+  final WorkoutRepository _workoutRepository = WorkoutRepository();
 
   GoalsLoadingState _state = GoalsLoadingState.initial;
   GoalsModel? _goals;
   StreakModel? _streak;
   List<AchievementModel> _achievements = [];
   String? _errorMessage;
+  int _workoutCount = 0;
   StreamSubscription? _goalsSubscription;
   StreamSubscription? _streakSubscription;
   StreamSubscription? _achievementsSubscription;
+  StreamSubscription? _workoutSubscription;
   String? _currentUserId;
 
   GoalsLoadingState get state => _state;
@@ -25,6 +29,7 @@ class GoalsViewModel extends ChangeNotifier {
   StreakModel? get streak => _streak;
   List<AchievementModel> get achievements => _achievements;
   String? get errorMessage => _errorMessage;
+  int get workoutCount => _workoutCount;
 
   void loadGoals(String userId) {
     _currentUserId = userId;
@@ -64,6 +69,14 @@ class GoalsViewModel extends ChangeNotifier {
       },
       onError: (error) {
         _errorMessage = error.toString();
+      },
+    );
+
+    _workoutSubscription?.cancel();
+    _workoutSubscription = _workoutRepository.getUserWorkoutsStream(userId).listen(
+      (workouts) {
+        _workoutCount = workouts.length;
+        notifyListeners();
       },
     );
   }
@@ -131,6 +144,7 @@ class GoalsViewModel extends ChangeNotifier {
     _goalsSubscription?.cancel();
     _streakSubscription?.cancel();
     _achievementsSubscription?.cancel();
+    _workoutSubscription?.cancel();
     super.dispose();
   }
 }
