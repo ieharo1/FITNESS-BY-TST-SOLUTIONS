@@ -4,15 +4,24 @@ Aplicación móvil de seguimiento fitness desarrollada por TST Solutions.
 
 ## Descripción
 
-Aplicación Android/IOS para seguimiento de tu rutina de ejercicios y progreso fitness. Permite registrar entrenamientos, monitorear tu peso y ver tu historial de progreso.
+Aplicación Android/iOS para seguimiento de tu rutina de ejercicios y progreso fitness. Permite registrar entrenamientos, monitorear tu peso, calcular tu IMC y ver tu historial de progreso en tiempo real.
 
 ## Características
 
+### Módulos
 - **Autenticación**: Registro e inicio de sesión con email y contraseña
-- **Gestión de Entrenamientos**: Agregar entrenamientos con ejercicios personalizados
+- **Gestión de Entrenamientos**: Agregar entrenamientos con ejercicios personalizados (series, repeticiones, peso)
 - **Seguimiento de Progreso**: Registrar peso y fotos de progreso
 - **Perfil de Usuario**: Editar información personal y objetivos fitness
 - **Dashboard**: Ver estadísticas y entrenamientos recientes
+- **Índice de Masa Corporal (IMC)**: Cálculo automático con categoría peso ideal
+- y **Estadísticas Gráficas**: Gráfico de evolución de peso con fl_chart
+
+### Funcionalidades
+- **CRUD Completo**: Crear, leer, actualizar y eliminar entrenamientos y progreso
+- **Sincronización en Tiempo Real**: Los datos se guardan directamente en Firestore
+- **Fotos de Progreso**: Subir fotos al Storage de Firebase
+- **Validaciones**: Validaciones en cliente y servidor
 - **Diseño Moderno**: Material Design 3 con interfaz intuitiva
 
 ## Tecnologías
@@ -20,10 +29,11 @@ Aplicación Android/IOS para seguimiento de tu rutina de ejercicios y progreso f
 - **Framework**: Flutter
 - **Backend**: Firebase
   - Firebase Authentication
-  - Cloud Firestore
-  - Firebase Storage
+  - Cloud Firestore (base de datos en la nube)
+  - Firebase Storage (fotos de progreso)
 - **Arquitectura**: MVVM con Provider
 - **Navegación**: GoRouter
+- **Gráficos**: fl_chart
 - **UI**: Material Design 3
 
 ## Estructura del Proyecto
@@ -32,21 +42,21 @@ Aplicación Android/IOS para seguimiento de tu rutina de ejercicios y progreso f
 lib/
 ├── main.dart                    # Punto de entrada
 ├── model/                       # Modelos de datos
-│   ├── user_model.dart
-│   ├── workout_model.dart
-│   └── progress_model.dart
+│   ├── user_model.dart         # Modelo usuario (con cálculo IMC)
+│   ├── workout_model.dart      # Modelo entrenamiento
+│   └── progress_model.dart     # Modelo progreso
 ├── repository/                  # Repositorios Firebase
-│   ├── auth_repository.dart
-│   ├── user_repository.dart
-│   ├── workout_repository.dart
-│   ├── progress_repository.dart
-│   └── storage_repository.dart
+│   ├── auth_repository.dart     # Autenticación
+│   ├── user_repository.dart    # Usuarios en Firestore
+│   ├── workout_repository.dart  # Entrenamientos en Firestore
+│   ├── progress_repository.dart # Progreso en Firestore
+│   └── storage_repository.dart  # Fotos en Firebase Storage
 ├── router/                      # Configuración de rutas
 │   └── app_router.dart
 └── ui/
     ├── theme/                   # Tema de la app
     │   └── app_theme.dart
-    ├── viewmodels/              # ViewModels
+    ├── viewmodels/              # ViewModels (estado de la app)
     │   ├── auth_viewmodel.dart
     │   ├── home_viewmodel.dart
     │   ├── workout_viewmodel.dart
@@ -59,6 +69,48 @@ lib/
         ├── workout/
         ├── progress/
         └── profile/
+```
+
+## Estructura de Base de Datos (Firestore)
+
+### Colección: users
+```json
+{
+  "name": "string",
+  "email": "string",
+  "weight": number,
+  "height": number,
+  "goal": "string",
+  "createdAt": timestamp
+}
+```
+
+### Colección: workouts
+```json
+{
+  "userId": "string",
+  "date": timestamp,
+  "type": "string",
+  "exercises": [
+    {
+      "name": "string",
+      "sets": number,
+      "reps": number,
+      "weight": number
+    }
+  ],
+  "createdAt": timestamp
+}
+```
+
+### Colección: progress
+```json
+{
+  "userId": "string",
+  "weight": number,
+  "photoUrl": "string (opcional)",
+  "date": timestamp
+}
 ```
 
 ## Requisitos
@@ -101,22 +153,25 @@ lib/
 2. **Perfil**: Completa tu información personal (peso, altura, objetivo)
 3. **Entrenamientos**: Agrega tus entrenamientos con ejercicios
 4. **Progreso**: Registra tu peso regularmente con fotos opcional
+5. **Estadísticas**: Ve tu gráfico de evolución de peso
+6. **IMC**: Consulta tu índice de masa corporal en el perfil
 
 ## Seguridad
 
 - Cada usuario solo puede acceder a sus propios datos
 - Validaciones en cliente y servidor
 - Autenticación requerida para todas las operaciones
+- Reglas de Firestore configuradas para seguridad
 
 ## Screenshots
 
 La app incluye las siguientes pantallas:
 - Splash Screen
 - Login / Registro
-- Home (Dashboard)
+- Home (Dashboard con estadísticas)
 - Agregar Entrenamiento
-- Progreso
-- Perfil
+- Progreso (Registro y Estadísticas)
+- Perfil (con IMC y peso ideal)
 
 ---
 

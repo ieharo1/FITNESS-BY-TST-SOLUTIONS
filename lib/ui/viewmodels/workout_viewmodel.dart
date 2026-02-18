@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../../repository/workout_repository.dart';
 import '../../repository/auth_repository.dart';
@@ -13,6 +14,8 @@ class WorkoutViewModel extends ChangeNotifier {
   List<WorkoutModel> _workouts = [];
   String? _errorMessage;
   bool _isSaving = false;
+  StreamSubscription? _workoutSubscription;
+  String? _currentUserId;
 
   WorkoutLoadingState get state => _state;
   List<WorkoutModel> get workouts => _workouts;
@@ -20,10 +23,13 @@ class WorkoutViewModel extends ChangeNotifier {
   bool get isSaving => _isSaving;
 
   void loadWorkouts(String userId) {
+    _currentUserId = userId;
     _state = WorkoutLoadingState.loading;
     notifyListeners();
 
-    _workoutRepository.getUserWorkoutsStream(userId).listen((workouts) {
+    _workoutSubscription?.cancel();
+
+    _workoutSubscription = _workoutRepository.getUserWorkoutsStream(userId).listen((workouts) {
       _workouts = workouts;
       _state = WorkoutLoadingState.loaded;
       notifyListeners();
@@ -34,6 +40,12 @@ class WorkoutViewModel extends ChangeNotifier {
     });
   }
 
+  void refresh() {
+    if (_currentUserId != null) {
+      loadWorkouts(_currentUserId!);
+    }
+  }
+
   Future<bool> addWorkout({
     required String type,
     required DateTime date,
@@ -41,7 +53,7 @@ class WorkoutViewModel extends ChangeNotifier {
   }) async {
     final userId = _authRepository.currentUserId;
     if (userId == null) {
-      _errorMessage = 'User not authenticated';
+      _errorMessage = 'Usuario no autenticado';
       notifyListeners();
       return false;
     }
@@ -77,6 +89,7 @@ class WorkoutViewModel extends ChangeNotifier {
   Future<bool> deleteWorkout(String workoutId) async {
     try {
       await _workoutRepository.deleteWorkout(workoutId);
+      notifyListeners();
       return true;
     } catch (e) {
       _errorMessage = e.toString();
@@ -88,5 +101,11 @@ class WorkoutViewModel extends ChangeNotifier {
   void clearError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _workoutSubscription?.cancel();
+    super.dispose();
   }
 }

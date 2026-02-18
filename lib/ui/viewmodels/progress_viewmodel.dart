@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../../repository/progress_repository.dart';
@@ -18,6 +19,8 @@ class ProgressViewModel extends ChangeNotifier {
   String? _errorMessage;
   bool _isUploading = false;
   double _uploadProgress = 0.0;
+  StreamSubscription? _progressSubscription;
+  String? _currentUserId;
 
   ProgressLoadingState get state => _state;
   List<ProgressModel> get progressList => _progressList;
@@ -27,10 +30,13 @@ class ProgressViewModel extends ChangeNotifier {
   double get uploadProgress => _uploadProgress;
 
   void loadProgress(String userId) {
+    _currentUserId = userId;
     _state = ProgressLoadingState.loading;
     notifyListeners();
 
-    _progressRepository.getUserProgressStream(userId).listen((progress) {
+    _progressSubscription?.cancel();
+
+    _progressSubscription = _progressRepository.getUserProgressStream(userId).listen((progress) {
       _progressList = progress;
       _latestProgress = progress.isNotEmpty ? progress.first : null;
       _state = ProgressLoadingState.loaded;
@@ -42,13 +48,19 @@ class ProgressViewModel extends ChangeNotifier {
     });
   }
 
+  void refresh() {
+    if (_currentUserId != null) {
+      loadProgress(_currentUserId!);
+    }
+  }
+
   Future<bool> addProgress({
     required double weight,
     File? photoFile,
   }) async {
     final userId = _authRepository.currentUserId;
     if (userId == null) {
-      _errorMessage = 'User not authenticated';
+      _errorMessage = 'Usuario no autenticado';
       notifyListeners();
       return false;
     }
@@ -62,12 +74,12 @@ class ProgressViewModel extends ChangeNotifier {
       String? photoUrl;
 
       if (photoFile != null) {
-        _uploadProgress = 0.5;
+        _uploadProgress = 0.3;
         notifyListeners();
         
         photoUrl = await _storageRepository.uploadProgressPhoto(userId, photoFile);
         
-        _uploadProgress = 0.8;
+        _uploadProgress = 0.7;
         notifyListeners();
       }
 
@@ -97,10 +109,15 @@ class ProgressViewModel extends ChangeNotifier {
 
   Future<bool> deleteProgress(ProgressModel progress) async {
     try {
-      if (progress.photoUrl != null) {
-        await _storageRepository.deleteProgressPhoto(progress.photoUrl!);
+      if (progress.photoUrl != null && progress.photoUrl!.isNotEmpty) {
+        try {
+          await _storageRepository.deleteProgressPhoto(progress.photoUrl!);
+        } catch (e) {
+          // Continue even if photo deletion fails
+        }
       }
       await _progressRepository.deleteProgress(progress.id);
+      notifyListeners();
       return true;
     } catch (e) {
       _errorMessage = e.toString();
@@ -112,5 +129,11 @@ class ProgressViewModel extends ChangeNotifier {
   void clearError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _progressSubscription?.cancel();
+    super.dispose();
   }
 }

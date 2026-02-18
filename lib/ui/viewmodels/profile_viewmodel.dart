@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../../repository/user_repository.dart';
@@ -17,6 +18,8 @@ class ProfileViewModel extends ChangeNotifier {
   String? _errorMessage;
   bool _isSaving = false;
   String? _profilePhotoUrl;
+  StreamSubscription? _userSubscription;
+  String? _currentUserId;
 
   ProfileLoadingState get state => _state;
   UserModel? get user => _user;
@@ -25,10 +28,13 @@ class ProfileViewModel extends ChangeNotifier {
   String? get profilePhotoUrl => _profilePhotoUrl;
 
   void loadUser(String userId) {
+    _currentUserId = userId;
     _state = ProfileLoadingState.loading;
     notifyListeners();
 
-    _userRepository.getUserStream(userId).listen((user) {
+    _userSubscription?.cancel();
+
+    _userSubscription = _userRepository.getUserStream(userId).listen((user) {
       _user = user;
       _state = ProfileLoadingState.loaded;
       notifyListeners();
@@ -39,13 +45,22 @@ class ProfileViewModel extends ChangeNotifier {
     });
   }
 
+  void refresh() {
+    if (_currentUserId != null) {
+      loadUser(_currentUserId!);
+    }
+  }
+
   Future<bool> updateProfile({
     required String name,
     required double weight,
     required double height,
     required String goal,
   }) async {
-    if (_user == null) return false;
+    if (_user == null) {
+      _errorMessage = 'Usuario no encontrado';
+      return false;
+    }
 
     _isSaving = true;
     _state = ProfileLoadingState.saving;
@@ -86,11 +101,6 @@ class ProfileViewModel extends ChangeNotifier {
       final photoUrl = await _storageRepository.uploadProfilePhoto(userId, photoFile);
       _profilePhotoUrl = photoUrl;
 
-      if (_user != null) {
-        final updatedUser = _user!.copyWith();
-        await _userRepository.updateUser(updatedUser);
-      }
-
       _isSaving = false;
       _state = ProfileLoadingState.loaded;
       notifyListeners();
@@ -107,5 +117,11 @@ class ProfileViewModel extends ChangeNotifier {
   void clearError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _userSubscription?.cancel();
+    super.dispose();
   }
 }

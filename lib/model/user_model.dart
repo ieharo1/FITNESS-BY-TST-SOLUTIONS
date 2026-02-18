@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class UserModel {
   final String id;
   final String name;
@@ -58,5 +60,43 @@ class UserModel {
       goal: goal ?? this.goal,
       createdAt: createdAt ?? this.createdAt,
     );
+  }
+
+  double get bmi {
+    if (weight <= 0 || height <= 0) return 0.0;
+    final heightInMeters = height / 100;
+    return weight / (heightInMeters * heightInMeters);
+  }
+
+  String get bmiCategory {
+    final imc = bmi;
+    if (imc == 0) return 'Sin datos';
+    if (imc < 18.5) return 'Bajo peso';
+    if (imc < 25) return 'Peso normal';
+    if (imc < 30) return 'Sobrepeso';
+    if (imc < 35) return 'Obesidad grado I';
+    if (imc < 40) return 'Obesidad grado II';
+    return 'Obesidad grado III';
+  }
+
+  Color get bmiColor {
+    final imc = bmi;
+    if (imc == 0) return Colors.grey;
+    if (imc < 18.5) return Colors.orange;
+    if (imc < 25) return Colors.green;
+    if (imc < 30) return Colors.orange;
+    return Colors.red;
+  }
+
+  double get idealWeightMin {
+    if (height <= 0) return 0.0;
+    final heightInMeters = height / 100;
+    return 18.5 * heightInMeters * heightInMeters;
+  }
+
+  double get idealWeightMax {
+    if (height <= 0) return 0.0;
+    final heightInMeters = height / 100;
+    return 24.9 * heightInMeters * heightInMeters;
   }
 }

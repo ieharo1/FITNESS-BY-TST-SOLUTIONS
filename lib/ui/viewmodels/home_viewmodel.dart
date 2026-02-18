@@ -38,19 +38,26 @@ class HomeViewModel extends ChangeNotifier {
     _state = LoadingState.loading;
     notifyListeners();
 
+    _userSubscription?.cancel();
+    _workoutSubscription?.cancel();
+    _progressSubscription?.cancel();
+
     _userSubscription = _userRepository.getUserStream(userId).listen((user) {
       _user = user;
+      _state = LoadingState.loaded;
+      notifyListeners();
+    }, onError: (error) {
+      _errorMessage = error.toString();
+      _state = LoadingState.error;
       notifyListeners();
     });
 
     _workoutSubscription = _workoutRepository.getUserWorkoutsStream(userId).listen((workouts) {
       _workoutCount = workouts.length;
       _recentWorkouts = workouts.take(5).toList();
-      _state = LoadingState.loaded;
       notifyListeners();
     }, onError: (error) {
       _errorMessage = error.toString();
-      _state = LoadingState.error;
       notifyListeners();
     });
 

@@ -177,7 +177,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 children: [
                   _buildProfileHeader(profileViewModel),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
+                  _buildBMICard(profileViewModel),
+                  const SizedBox(height: 16),
                   if (_isEditing) _buildEditForm(profileViewModel) else _buildProfileInfo(profileViewModel),
                   const SizedBox(height: 24),
                   if (_isEditing)
@@ -266,6 +268,150 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontSize: 16,
             color: Colors.grey.shade600,
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBMICard(ProfileViewModel profileViewModel) {
+    final user = profileViewModel.user;
+    if (user == null) return const SizedBox.shrink();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.monitor_weight, color: AppTheme.primaryColor),
+                SizedBox(width: 8),
+                Text(
+                  'Índice de Masa Corporal (IMC)',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildBMIGauge(user.bmi, user.bmiColor),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildBMIInfoRow('Tu IMC:', '${user.bmi.toStringAsFixed(1)}'),
+                    const SizedBox(height: 4),
+                    _buildBMIInfoRow('Categoría:', user.bmiCategory, color: user.bmiColor),
+                    const SizedBox(height: 4),
+                    _buildBMIInfoRow('Peso ideal:', '${user.idealWeightMin.toStringAsFixed(1)} - ${user.idealWeightMax.toStringAsFixed(1)} kg'),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildBMILegend(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBMIGauge(double bmi, Color color) {
+    return SizedBox(
+      width: 100,
+      height: 100,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CircularProgressIndicator(
+            value: bmi > 0 ? (bmi / 40).clamp(0.0, 1.0) : 0,
+            strokeWidth: 10,
+            backgroundColor: Colors.grey.shade200,
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                bmi > 0 ? bmi.toStringAsFixed(1) : '--',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBMIInfoRow(String label, String value, {Color? color}) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade600,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBMILegend() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildLegendItem('Bajo', '< 18.5', Colors.orange),
+          _buildLegendItem('Normal', '18.5-24.9', Colors.green),
+          _buildLegendItem('Sobre', '25-29.9', Colors.orange),
+          _buildLegendItem('Obeso', '> 30', Colors.red),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(String label, String range, Color color) {
+    return Column(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          range,
+          style: TextStyle(fontSize: 8, color: Colors.grey.shade600),
         ),
       ],
     );

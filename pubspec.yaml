@@ -1,5 +1,5 @@
-name: fittrack_pro
-description: "Fitness By TST - Your personal fitness tracking app"
+name: fitness_by_tst
+description: "Fitness By TST - Tu aplicación personal de seguimiento fitness"
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -23,6 +23,7 @@ dependencies:
   image_picker: ^1.1.2
   intl: ^0.20.1
   uuid: ^4.5.1
+  fl_chart: ^0.69.0
 
 dev_dependencies:
   flutter_test:
