@@ -25,6 +25,10 @@ Aplicación Android/iOS para seguimiento de tu rutina de ejercicios y progreso f
 - **Plan Nutricional**: Distribución de macros y ejemplos de comidas
 - **Modo Oscuro**: Soporte para tema claro y oscuro
 - **Medidas Corporales**: Registro de cintura, pecho, brazos, piernas
+- **Logros y Badges**: Sistema de logros por entrenamientos y rachas
+- **Notificaciones**: Recordatorio diario de entrenamiento
+- **Exportar Datos**: Exportar historial de peso y entrenamientos
+- **Acerca de TST**: Información de la empresa desarrolladora
 
 ### Funcionalidades
 - **CRUD Completo**: Crear, leer, actualizar y eliminar entrenamientos y progreso
@@ -35,6 +39,9 @@ Aplicación Android/iOS para seguimiento de tu rutina de ejercicios y progreso f
 - **Validaciones**: Validaciones en cliente y servidor
 - **Diseño Moderno**: Material Design 3 con interfaz intuitiva
 - **Tema Claro/Oscuro**: Toggle para cambiar entre modos
+- **Popup Diario**: Pedir peso al usuario cada día
+- **Celebración**: Popup de felicidades al completar rutinas
+- **Compartir Datos**: Exportar datos como archivo de texto
 
 ## Tecnologías
 
@@ -189,5 +196,15 @@ La app incluye las siguientes pantallas:
 ---
 
 **Desarrollado por TST Solutions**
+
+TST Solutions - "Te Solucionamos Todo" es un aliado tecnológico integral que ofrece soluciones completas desde telecomunicaciones hasta desarrollo de software, marketing digital y obra civil.
+
+Con más de 12 años de experiencia, hemos transformado cientos de empresas ayudándolas a dar el gran salto hacia la Transformación Digital.
+
+### Contáctanos:
+- 🌐 Web: https://tst-solutions.netlify.app/
+- 📘 Facebook: https://www.facebook.com/tstsolutionsecuador/
+- 🐦 X: https://x.com/SolutionsT95698
+- 📱 WhatsApp: +593 99 796 2747
 
 © 2026 Fitness By TST - Todos los derechos reservados.

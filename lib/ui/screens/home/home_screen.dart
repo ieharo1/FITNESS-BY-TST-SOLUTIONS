@@ -757,6 +757,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildDrawerItem(context, Icons.trending_up, 'Progreso', '/progress', 8),
           _buildDrawerItem(context, Icons.person, 'Perfil', '/profile', 9),
           _buildDrawerItem(context, Icons.help_outline, 'Ayuda / FAQ', '/faq', 10),
+          _buildDrawerItem(context, Icons.info_outline, 'Acerca de TST', '/about', 13),
         ],
       ),
     );
