@@ -57,8 +57,10 @@ class ProfileViewModel extends ChangeNotifier {
     required double height,
     required String goal,
   }) async {
-    if (_user == null) {
-      _errorMessage = 'Usuario no encontrado';
+    final userId = _authRepository.currentUserId;
+    if (userId == null) {
+      _errorMessage = 'Usuario no autenticado';
+      notifyListeners();
       return false;
     }
 
@@ -67,14 +69,32 @@ class ProfileViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final updatedUser = _user!.copyWith(
-        name: name,
-        weight: weight,
-        height: height,
-        goal: goal,
-      );
-
-      await _userRepository.updateUser(updatedUser);
+      // Intentar obtener el usuario primero
+      UserModel? existingUser = await _userRepository.getUser(userId);
+      
+      if (existingUser == null) {
+        // Si no existe, crear uno nuevo
+        existingUser = UserModel(
+          id: userId,
+          name: name,
+          email: _authRepository.currentUser?.email ?? '',
+          weight: weight,
+          height: height,
+          goal: goal,
+          createdAt: DateTime.now(),
+        );
+        await _userRepository.createUser(existingUser);
+      } else {
+        // Actualizar el usuario existente
+        final updatedUser = existingUser.copyWith(
+          name: name,
+          weight: weight,
+          height: height,
+          goal: goal,
+        );
+        await _userRepository.updateUser(updatedUser);
+        _user = updatedUser;
+      }
       
       _isSaving = false;
       _state = ProfileLoadingState.loaded;
