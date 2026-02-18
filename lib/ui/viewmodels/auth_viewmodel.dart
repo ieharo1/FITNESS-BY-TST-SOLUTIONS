@@ -16,6 +16,7 @@ class AuthViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _authRepository.isAuthenticated;
   String? get currentUserId => _authRepository.currentUserId;
+  dynamic get currentUser => _authRepository.currentUser;
 
   AuthViewModel() {
     _authSubscription = _authRepository.authStateChanges.listen((state) {

@@ -18,11 +18,15 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authViewModel = context.read<AuthViewModel>();
-      if (authViewModel.currentUserId != null) {
-        context.read<HomeViewModel>().initialize(authViewModel.currentUserId!);
-      }
+      _loadData();
     });
+  }
+
+  void _loadData() {
+    final authViewModel = context.read<AuthViewModel>();
+    if (authViewModel.currentUserId != null) {
+      context.read<HomeViewModel>().initialize(authViewModel.currentUserId!);
+    }
   }
 
   @override
@@ -32,11 +36,12 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Fitness By TST'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () => context.push('/profile'),
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadData,
           ),
         ],
       ),
+      drawer: _buildDrawer(context),
       body: Consumer<HomeViewModel>(
         builder: (context, homeViewModel, child) {
           if (homeViewModel.state == LoadingState.loading) {
@@ -44,12 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
 
           return RefreshIndicator(
-            onRefresh: () async {
-              final authViewModel = context.read<AuthViewModel>();
-              if (authViewModel.currentUserId != null) {
-                homeViewModel.refresh(authViewModel.currentUserId!);
-              }
-            },
+            onRefresh: () async => _loadData(),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
@@ -59,6 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildWelcomeCard(homeViewModel),
                   const SizedBox(height: 24),
                   _buildStatsRow(homeViewModel),
+                  const SizedBox(height: 16),
+                  _buildBMIQuickView(homeViewModel),
                   const SizedBox(height: 24),
                   _buildRecentWorkouts(homeViewModel),
                 ],
@@ -70,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/add-workout'),
         icon: const Icon(Icons.add),
-        label: const Text('Agregar Entrenamiento'),
+        label: const Text('Agregar'),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
@@ -125,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '¡Hola, $userName!',
+            '¡Hola, $userName! 👋',
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -160,12 +162,104 @@ class _HomeScreenState extends State<HomeScreen> {
         Expanded(
           child: _buildStatCard(
             icon: Icons.fitness_center,
-            label: 'Total Entrenamientos',
+            label: 'Entrenamientos',
             value: '${homeViewModel.workoutCount}',
             color: AppTheme.secondaryColor,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildBMIQuickView(HomeViewModel homeViewModel) {
+    final user = homeViewModel.user;
+    if (user == null || user.height <= 0 || user.weight <= 0) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.info_outline, color: Colors.orange),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Text(
+                  'Completa tu peso y altura en el perfil para ver tu IMC',
+                  style: TextStyle(color: Colors.orange, fontSize: 14),
+                ),
+              ),
+              TextButton(
+                onPressed: () => context.push('/profile'),
+                child: const Text('Completar'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: user.bmiColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    user.bmi.toStringAsFixed(1),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: user.bmiColor,
+                    ),
+                  ),
+                  Text(
+                    'IMC',
+                    style: TextStyle(fontSize: 10, color: user.bmiColor),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.bmiCategory,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: user.bmiColor,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Peso ideal: ${user.idealWeightMin.toStringAsFixed(1)} - ${user.idealWeightMax.toStringAsFixed(1)} kg',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: () => context.push('/profile'),
+              icon: const Icon(Icons.arrow_forward_ios, size: 16),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -256,13 +350,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Toca el botón de abajo para agregar tu primer entrenamiento',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade500,
-                  ),
-                  textAlign: TextAlign.center,
+                ElevatedButton.icon(
+                  onPressed: () => context.push('/add-workout'),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Agregar'),
                 ),
               ],
             ),
@@ -315,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            DateFormat('dd MMM yyyy - HH:mm', 'es_ES').format(workout.date),
+                            DateFormat('dd MMM yyyy', 'es_ES').format(workout.date),
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey.shade600,
@@ -325,7 +416,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     Text(
-                      '${workout.exercises.length} ejercicios',
+                      '${workout.exercises.length} ejer.',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade500,
@@ -337,6 +428,67 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
       ],
+    );
+  }
+
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.fitness_center, color: AppTheme.primaryColor, size: 32),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Fitness By TST',
+                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  context.read<AuthViewModel>().currentUser?.email ?? '',
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          _buildDrawerItem(context, Icons.home, 'Inicio', '/home', 0),
+          _buildDrawerItem(context, Icons.monitor_weight, 'Calculadora IMC', '/bmi', 1),
+          _buildDrawerItem(context, Icons.local_fire_department, 'Calorías', '/calories', 2),
+          _buildDrawerItem(context, Icons.straighten, 'Medidas Corporales', '/measurements', 3),
+          _buildDrawerItem(context, Icons.fitness_center, 'Mis Rutinas', '/routines', 4),
+          _buildDrawerItem(context, Icons.timer, 'Temporizador', '/timer', 5),
+          _buildDrawerItem(context, Icons.restaurant, 'Nutrición', '/nutrition', 6),
+          _buildDrawerItem(context, Icons.flag, 'Metas y Progreso', '/goals', 7),
+          const Divider(),
+          _buildDrawerItem(context, Icons.trending_up, 'Progreso', '/progress', 8),
+          _buildDrawerItem(context, Icons.person, 'Perfil', '/profile', 9),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem(BuildContext context, IconData icon, String title, String route, int index) {
+    return ListTile(
+      leading: Icon(icon, color: AppTheme.primaryColor),
+      title: Text(title),
+      onTap: () {
+        Navigator.pop(context);
+        if (route != '/home') {
+          context.push(route);
+        }
+      },
     );
   }
 }

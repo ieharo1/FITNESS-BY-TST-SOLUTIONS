@@ -8,6 +8,13 @@ import '../ui/screens/home/home_screen.dart';
 import '../ui/screens/workout/add_workout_screen.dart';
 import '../ui/screens/progress/progress_screen.dart';
 import '../ui/screens/profile/profile_screen.dart';
+import '../ui/screens/bmi/bmi_screen.dart';
+import '../ui/screens/calories/calories_screen.dart';
+import '../ui/screens/measurements/measurements_screen.dart';
+import '../ui/screens/routines/routines_screen.dart';
+import '../ui/screens/timer/timer_screen.dart';
+import '../ui/screens/goals/goals_screen.dart';
+import '../ui/screens/nutrition/nutrition_screen.dart';
 import '../ui/viewmodels/auth_viewmodel.dart';
 
 class AppRouter {
@@ -62,6 +69,34 @@ class AppRouter {
         GoRoute(
           path: '/profile',
           builder: (context, state) => const ProfileScreen(),
+        ),
+        GoRoute(
+          path: '/bmi',
+          builder: (context, state) => const BmiScreen(),
+        ),
+        GoRoute(
+          path: '/calories',
+          builder: (context, state) => const CaloriesScreen(),
+        ),
+        GoRoute(
+          path: '/measurements',
+          builder: (context, state) => const MeasurementsScreen(),
+        ),
+        GoRoute(
+          path: '/routines',
+          builder: (context, state) => const RoutinesScreen(),
+        ),
+        GoRoute(
+          path: '/timer',
+          builder: (context, state) => const TimerScreen(),
+        ),
+        GoRoute(
+          path: '/goals',
+          builder: (context, state) => const GoalsScreen(),
+        ),
+        GoRoute(
+          path: '/nutrition',
+          builder: (context, state) => const NutritionScreen(),
         ),
       ],
     );
