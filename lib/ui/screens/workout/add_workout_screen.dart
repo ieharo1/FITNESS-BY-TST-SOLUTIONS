@@ -22,6 +22,18 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
   bool _isLoading = false;
 
   final List<String> _workoutTypes = [
+    'Entrenamiento de Fuerza',
+    'Cardio',
+    'HIIT',
+    'Yoga',
+    'CrossFit',
+    'Natación',
+    'Correr',
+    'Ciclismo',
+    'Otro',
+  ];
+
+  final List<String> _workoutTypesEn = [
     'Strength Training',
     'Cardio',
     'HIIT',
@@ -56,6 +68,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
+      locale: const Locale('es', 'ES'),
     );
     if (picked != null) {
       final TimeOfDay? pickedTime = await showTimePicker(
@@ -100,7 +113,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       if (_exercises.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Please add at least one exercise'),
+            content: Text('Por favor agrega al menos un ejercicio'),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -125,7 +138,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Workout saved successfully!'),
+            content: Text('¡Entrenamiento guardado exitosamente!'),
             backgroundColor: AppTheme.successColor,
           ),
         );
@@ -133,7 +146,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(workoutViewModel.errorMessage ?? 'Failed to save workout'),
+            content: Text(workoutViewModel.errorMessage ?? 'Error al guardar'),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -145,7 +158,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Workout'),
+        title: const Text('Agregar Entrenamiento'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -165,7 +178,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Workout Details',
+                        'Detalles del Entrenamiento',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -175,7 +188,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                       DropdownButtonFormField<String>(
                         initialValue: _typeController.text.isEmpty ? null : _typeController.text,
                         decoration: const InputDecoration(
-                          labelText: 'Workout Type',
+                          labelText: 'Tipo de Entrenamiento',
                           prefixIcon: Icon(Icons.fitness_center),
                         ),
                         items: _workoutTypes.map((type) {
@@ -191,7 +204,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please select a workout type';
+                            return 'Por favor selecciona un tipo';
                           }
                           return null;
                         },
@@ -201,11 +214,11 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                         onTap: _selectDate,
                         child: InputDecorator(
                           decoration: const InputDecoration(
-                            labelText: 'Date & Time',
+                            labelText: 'Fecha y Hora',
                             prefixIcon: Icon(Icons.calendar_today),
                           ),
                           child: Text(
-                            DateFormat('MMM dd, yyyy - HH:mm').format(_selectedDate),
+                            DateFormat('dd MMM yyyy - HH:mm', 'es_ES').format(_selectedDate),
                           ),
                         ),
                       ),
@@ -224,7 +237,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'Exercises',
+                            'Ejercicios',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -233,7 +246,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                           TextButton.icon(
                             onPressed: _addExercise,
                             icon: const Icon(Icons.add),
-                            label: const Text('Add'),
+                            label: const Text('Agregar'),
                           ),
                         ],
                       ),
@@ -251,7 +264,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'No exercises added',
+                                  'No hay ejercicios agregados',
                                   style: TextStyle(color: Colors.grey.shade600),
                                 ),
                               ],
@@ -283,7 +296,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                                           style: const TextStyle(fontWeight: FontWeight.w600),
                                         ),
                                         Text(
-                                          '${exercise.sets} sets x ${exercise.reps} reps${exercise.weight > 0 ? ' - ${exercise.weight} kg' : ''}',
+                                          '${exercise.sets} series x ${exercise.reps} repeticiones${exercise.weight > 0 ? ' - ${exercise.weight} kg' : ''}',
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey.shade600,
@@ -317,7 +330,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Save Workout'),
+                    : const Text('Guardar Entrenamiento'),
               ),
             ],
           ),
@@ -355,7 +368,7 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add Exercise'),
+      title: const Text('Agregar Ejercicio'),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -364,10 +377,10 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Exercise Name'),
+                decoration: const InputDecoration(labelText: 'Nombre del Ejercicio'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter exercise name';
+                    return 'Por favor ingresa el nombre';
                   }
                   return null;
                 },
@@ -379,10 +392,10 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
                     child: TextFormField(
                       controller: _setsController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Sets'),
+                      decoration: const InputDecoration(labelText: 'Series'),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Required';
+                          return 'Requerido';
                         }
                         return null;
                       },
@@ -393,10 +406,10 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
                     child: TextFormField(
                       controller: _repsController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Reps'),
+                      decoration: const InputDecoration(labelText: 'Repeticiones'),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Required';
+                          return 'Requerido';
                         }
                         return null;
                       },
@@ -409,8 +422,8 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
                 controller: _weightController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: 'Weight (kg)',
-                  hintText: 'Optional',
+                  labelText: 'Peso (kg)',
+                  hintText: 'Opcional',
                 ),
               ),
             ],
@@ -420,7 +433,7 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: const Text('Cancelar'),
         ),
         ElevatedButton(
           onPressed: () {
@@ -435,7 +448,7 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
               Navigator.pop(context);
             }
           },
-          child: const Text('Add'),
+          child: const Text('Agregar'),
         ),
       ],
     );

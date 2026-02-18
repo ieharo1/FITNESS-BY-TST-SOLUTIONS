@@ -63,7 +63,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
+              title: const Text('Elegir de Galería'),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage();
@@ -71,7 +71,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('Take a Photo'),
+              title: const Text('Tomar Foto'),
               onTap: () {
                 Navigator.pop(context);
                 _takePhoto();
@@ -88,7 +88,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     if (weight == null || weight <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please enter a valid weight'),
+          content: Text('Por favor ingresa un peso válido'),
           backgroundColor: AppTheme.errorColor,
         ),
       );
@@ -108,14 +108,14 @@ class _ProgressScreenState extends State<ProgressScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Progress added successfully!'),
+          content: Text('¡Progreso guardado exitosamente!'),
           backgroundColor: AppTheme.successColor,
         ),
       );
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(progressViewModel.errorMessage ?? 'Failed to add progress'),
+          content: Text(progressViewModel.errorMessage ?? 'Error al guardar'),
           backgroundColor: AppTheme.errorColor,
         ),
       );
@@ -126,7 +126,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Progress'),
+        title: const Text('Progreso'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -158,7 +158,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Add Progress',
+              'Agregar Progreso',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -169,7 +169,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
               controller: _weightController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                labelText: 'Current Weight (kg)',
+                labelText: 'Peso Actual (kg)',
                 prefixIcon: Icon(Icons.monitor_weight_outlined),
               ),
             ),
@@ -234,7 +234,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Add Photo',
+                                    'Agregar Foto',
                                     style: TextStyle(
                                       color: Colors.grey.shade600,
                                     ),
@@ -261,7 +261,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Save Progress'),
+                    : const Text('Guardar Progreso'),
               ),
             ),
           ],
@@ -275,7 +275,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Progress History',
+          'Historial de Progreso',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -295,7 +295,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No progress recorded yet',
+                    'No hay progreso registrado aún',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey.shade600,
@@ -376,7 +376,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            DateFormat('MMM dd, yyyy').format(progress.date),
+                            DateFormat('dd MMM yyyy', 'es_ES').format(progress.date),
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey.shade600,
@@ -391,19 +391,19 @@ class _ProgressScreenState extends State<ProgressScreen> {
                         final confirm = await showDialog<bool>(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Delete Progress'),
-                            content: const Text('Are you sure you want to delete this progress entry?'),
+                            title: const Text('Eliminar Progreso'),
+                            content: const Text('¿Estás seguro de que deseas eliminar este registro?'),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Cancel'),
+                                child: const Text('Cancelar'),
                               ),
                               ElevatedButton(
                                 onPressed: () => Navigator.pop(context, true),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.errorColor,
                                 ),
-                                child: const Text('Delete'),
+                                child: const Text('Eliminar'),
                               ),
                             ],
                           ),

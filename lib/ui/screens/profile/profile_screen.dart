@@ -85,14 +85,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Profile updated successfully!'),
+            content: Text('¡Perfil actualizado exitosamente!'),
             backgroundColor: AppTheme.successColor,
           ),
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(profileViewModel.errorMessage ?? 'Failed to update profile'),
+            content: Text(profileViewModel.errorMessage ?? 'Error al actualizar'),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -113,16 +113,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: const Text('Cerrar Sesión'),
+        content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Logout'),
+            child: const Text('Cerrar Sesión'),
           ),
         ],
       ),
@@ -138,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Perfil'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -147,7 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (_isEditing)
             TextButton(
               onPressed: _cancelEdit,
-              child: const Text('Cancel'),
+              child: const Text('Cancelar'),
             )
           else
             IconButton(
@@ -192,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('Save Changes'),
+                          : const Text('Guardar Cambios'),
                     )
                   else
                     ElevatedButton(
@@ -200,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.errorColor,
                       ),
-                      child: const Text('Logout'),
+                      child: const Text('Cerrar Sesión'),
                     ),
                 ],
               ),
@@ -254,7 +254,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 16),
         Text(
-          profileViewModel.user?.name ?? 'User',
+          profileViewModel.user?.name ?? 'Usuario',
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -279,7 +279,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Edit Profile',
+              'Editar Perfil',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -289,12 +289,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(
-                labelText: 'Name',
+                labelText: 'Nombre',
                 prefixIcon: Icon(Icons.person_outlined),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your name';
+                  return 'Por favor ingresa tu nombre';
                 }
                 return null;
               },
@@ -304,15 +304,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               controller: _weightController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                labelText: 'Weight (kg)',
+                labelText: 'Peso (kg)',
                 prefixIcon: Icon(Icons.monitor_weight_outlined),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your weight';
+                  return 'Por favor ingresa tu peso';
                 }
                 if (double.tryParse(value) == null) {
-                  return 'Please enter a valid number';
+                  return 'Por favor ingresa un número válido';
                 }
                 return null;
               },
@@ -322,15 +322,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               controller: _heightController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                labelText: 'Height (cm)',
+                labelText: 'Altura (cm)',
                 prefixIcon: Icon(Icons.height),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your height';
+                  return 'Por favor ingresa tu altura';
                 }
                 if (double.tryParse(value) == null) {
-                  return 'Please enter a valid number';
+                  return 'Por favor ingresa un número válido';
                 }
                 return null;
               },
@@ -340,13 +340,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               controller: _goalController,
               maxLines: 3,
               decoration: const InputDecoration(
-                labelText: 'Fitness Goal',
+                labelText: 'Objetivo Fitness',
                 prefixIcon: Icon(Icons.flag_outlined),
                 alignLabelWithHint: true,
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your fitness goal';
+                  return 'Por favor ingresa tu objetivo fitness';
                 }
                 return null;
               },
@@ -366,20 +366,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             _buildInfoRow(
               icon: Icons.monitor_weight_outlined,
-              label: 'Weight',
+              label: 'Peso',
               value: '${user?.weight.toStringAsFixed(1) ?? '0'} kg',
             ),
             const Divider(),
             _buildInfoRow(
               icon: Icons.height,
-              label: 'Height',
+              label: 'Altura',
               value: '${user?.height.toStringAsFixed(1) ?? '0'} cm',
             ),
             const Divider(),
             _buildInfoRow(
               icon: Icons.flag_outlined,
-              label: 'Goal',
-              value: user?.goal ?? 'Not set',
+              label: 'Objetivo',
+              value: user?.goal ?? 'No establecido',
             ),
           ],
         ),

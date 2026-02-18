@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/add-workout'),
         icon: const Icon(Icons.add),
-        label: const Text('Add Workout'),
+        label: const Text('Agregar Entrenamiento'),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
@@ -90,17 +90,17 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Inicio',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.trending_up_outlined),
             activeIcon: Icon(Icons.trending_up),
-            label: 'Progress',
+            label: 'Progreso',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            label: 'Perfil',
           ),
         ],
       ),
@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildWelcomeCard(HomeViewModel homeViewModel) {
-    final userName = homeViewModel.user?.name ?? 'User';
+    final userName = homeViewModel.user?.name ?? 'Usuario';
     
     return Container(
       width: double.infinity,
@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Hello, $userName!',
+            '¡Hola, $userName!',
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -134,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Ready for your workout today?',
+            '¿Listo para tu entrenamiento de hoy?',
             style: TextStyle(
               fontSize: 16,
               color: Colors.white70,
@@ -151,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Expanded(
           child: _buildStatCard(
             icon: Icons.monitor_weight_outlined,
-            label: 'Current Weight',
+            label: 'Peso Actual',
             value: '${homeViewModel.latestWeight.toStringAsFixed(1)} kg',
             color: AppTheme.primaryColor,
           ),
@@ -160,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Expanded(
           child: _buildStatCard(
             icon: Icons.fitness_center,
-            label: 'Total Workouts',
+            label: 'Total Entrenamientos',
             value: '${homeViewModel.workoutCount}',
             color: AppTheme.secondaryColor,
           ),
@@ -225,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Recent Workouts',
+          'Entrenamientos Recientes',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -249,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'No workouts yet',
+                  'No hay entrenamientos aún',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey.shade600,
@@ -257,11 +257,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Tap the button below to add your first workout',
+                  'Toca el botón de abajo para agregar tu primer entrenamiento',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey.shade500,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
@@ -314,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            DateFormat('MMM dd, yyyy - HH:mm').format(workout.date),
+                            DateFormat('dd MMM yyyy - HH:mm', 'es_ES').format(workout.date),
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey.shade600,
@@ -324,7 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     Text(
-                      '${workout.exercises.length} exercises',
+                      '${workout.exercises.length} ejercicios',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade500,

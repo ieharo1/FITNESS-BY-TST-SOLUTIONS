@@ -41,21 +41,21 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your email';
+      return 'Por favor ingresa tu correo electrónico';
     }
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
-      return 'Please enter a valid email';
+      return 'Por favor ingresa un correo válido';
     }
     return null;
   }
 
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your password';
+      return 'Por favor ingresa tu contraseña';
     }
     if (value.length < 6) {
-      return 'Password must be at least 6 characters';
+      return 'La contraseña debe tener al menos 6 caracteres';
     }
     return null;
   }
@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'Welcome Back!',
+                  '¡Bienvenido de nuevo!',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -95,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Sign in to continue your fitness journey',
+                  'Inicia sesión para continuar tu viaje fitness',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey.shade600,
@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   textInputAction: TextInputAction.next,
                   validator: _validateEmail,
                   decoration: const InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'Correo electrónico',
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
                 ),
@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   validator: _validatePassword,
                   onFieldSubmitted: (_) => _login(),
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: 'Contraseña',
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -160,16 +160,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         });
                       },
                     ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      context.push('/forgot-password');
-                    },
-                    child: const Text('Forgot Password?'),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -187,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('Sign In'),
+                          : const Text('Iniciar Sesión'),
                     );
                   },
                 ),
@@ -196,12 +186,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Don't have an account?",
+                      '¿No tienes una cuenta?',
                       style: TextStyle(color: Colors.grey.shade600),
                     ),
                     TextButton(
                       onPressed: () => context.go('/register'),
-                      child: const Text('Sign Up'),
+                      child: const Text('Regístrate'),
                     ),
                   ],
                 ),

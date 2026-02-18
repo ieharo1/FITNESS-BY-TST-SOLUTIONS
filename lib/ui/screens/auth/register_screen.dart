@@ -47,41 +47,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   String? _validateName(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your name';
+      return 'Por favor ingresa tu nombre';
     }
     if (value.length < 2) {
-      return 'Name must be at least 2 characters';
+      return 'El nombre debe tener al menos 2 caracteres';
     }
     return null;
   }
 
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your email';
+      return 'Por favor ingresa tu correo electrónico';
     }
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
-      return 'Please enter a valid email';
+      return 'Por favor ingresa un correo válido';
     }
     return null;
   }
 
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter a password';
+      return 'Por favor ingresa una contraseña';
     }
     if (value.length < 6) {
-      return 'Password must be at least 6 characters';
+      return 'La contraseña debe tener al menos 6 caracteres';
     }
     return null;
   }
 
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
+      return 'Por favor confirma tu contraseña';
     }
     if (value != _passwordController.text) {
-      return 'Passwords do not match';
+      return 'Las contraseñas no coinciden';
     }
     return null;
   }
@@ -113,7 +113,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'Create Account',
+                  'Crear Cuenta',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -121,7 +121,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Start your fitness journey today',
+                  'Comienza tu viaje fitness hoy',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey.shade600,
@@ -161,7 +161,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   textInputAction: TextInputAction.next,
                   validator: _validateName,
                   decoration: const InputDecoration(
-                    labelText: 'Full Name',
+                    labelText: 'Nombre completo',
                     prefixIcon: Icon(Icons.person_outlined),
                   ),
                 ),
@@ -172,7 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   textInputAction: TextInputAction.next,
                   validator: _validateEmail,
                   decoration: const InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'Correo electrónico',
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
                 ),
@@ -183,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   textInputAction: TextInputAction.next,
                   validator: _validatePassword,
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: 'Contraseña',
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -205,7 +205,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   validator: _validateConfirmPassword,
                   onFieldSubmitted: (_) => _register(),
                   decoration: InputDecoration(
-                    labelText: 'Confirm Password',
+                    labelText: 'Confirmar contraseña',
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -234,7 +234,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('Create Account'),
+                          : const Text('Crear Cuenta'),
                     );
                   },
                 ),
@@ -243,12 +243,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account?',
+                      '¿Ya tienes una cuenta?',
                       style: TextStyle(color: Colors.grey.shade600),
                     ),
                     TextButton(
                       onPressed: () => context.go('/login'),
-                      child: const Text('Sign In'),
+                      child: const Text('Iniciar Sesión'),
                     ),
                   ],
                 ),
