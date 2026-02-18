@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "925119271764",
+    "project_id": "fitness-by-tst",
+    "storage_bucket": "fitness-by-tst.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:925119271764:android:8ee1b95280fdd9f9a26ec1",
+        "android_client_info": {
+          "package_name": "com.example.fittrack_pro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2E-qXv7l454R5m3iU0ay94j63EFEvt-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
