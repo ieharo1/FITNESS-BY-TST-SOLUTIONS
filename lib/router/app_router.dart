@@ -18,6 +18,7 @@ import '../ui/screens/nutrition/nutrition_screen.dart';
 import '../ui/screens/faq/faq_screen.dart';
 import '../ui/screens/achievements/achievements_screen.dart';
 import '../ui/screens/export/export_data_screen.dart';
+import '../ui/screens/about/about_screen.dart';
 import '../ui/viewmodels/auth_viewmodel.dart';
 
 class AppRouter {
@@ -112,6 +113,10 @@ class AppRouter {
         GoRoute(
           path: '/export',
           builder: (context, state) => const ExportDataScreen(),
+        ),
+        GoRoute(
+          path: '/about',
+          builder: (context, state) => const AboutScreen(),
         ),
       ],
     );
