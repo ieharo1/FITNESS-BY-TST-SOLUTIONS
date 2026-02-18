@@ -18,7 +18,8 @@ class AchievementsScreen extends StatelessWidget {
           onPressed: () => context.pop(),
         ),
       ),
-      body: Consumer<GoalsViewModel>(
+      body: SafeArea(
+        child: Consumer<GoalsViewModel>(
         builder: (context, goalsViewModel, child) {
           final workoutCount = goalsViewModel.workoutCount;
           final currentStreak = goalsViewModel.streak?.currentStreak ?? 0;
@@ -82,6 +83,7 @@ class AchievementsScreen extends StatelessWidget {
             ),
           );
         },
+        ),
       ),
     );
   }

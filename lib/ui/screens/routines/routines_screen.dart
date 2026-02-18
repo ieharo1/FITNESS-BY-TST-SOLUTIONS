@@ -112,7 +112,9 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
                     ],
                     onSelected: (value) {
                       if (value == 'delete') {
-                        viewModel.deleteRoutine(routine.id);
+                        _showDeleteConfirmation(context, viewModel, routine.id);
+                      } else if (value == 'edit') {
+                        _showEditRoutineDialog(routine);
                       }
                     },
                   ),
@@ -416,6 +418,180 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
       },
       selectedColor: AppTheme.primaryColor.withValues(alpha: 0.2),
       checkmarkColor: AppTheme.primaryColor,
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, RoutineViewModel viewModel, String routineId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar Rutina'),
+        content: const Text('¿Estás seguro de que quieres eliminar esta rutina?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await viewModel.deleteRoutine(routineId);
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Rutina eliminada')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditRoutineDialog(RoutineModel routine) {
+    final nameController = TextEditingController(text: routine.name);
+    final descController = TextEditingController(text: routine.description ?? '');
+    final selectedDays = <int>{...routine.weekDays};
+    final exercises = <RoutineExercise>[...routine.exercises];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Editar Rutina', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Nombre de la rutina'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descController,
+                  decoration: const InputDecoration(labelText: 'Descripción (opcional)'),
+                ),
+                const SizedBox(height: 16),
+                const Text('Selecciona los días de la semana:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    _buildDayChip(1, 'Lun', selectedDays, setModalState),
+                    _buildDayChip(2, 'Mar', selectedDays, setModalState),
+                    _buildDayChip(3, 'Mié', selectedDays, setModalState),
+                    _buildDayChip(4, 'Jue', selectedDays, setModalState),
+                    _buildDayChip(5, 'Vie', selectedDays, setModalState),
+                    _buildDayChip(6, 'Sáb', selectedDays, setModalState),
+                    _buildDayChip(7, 'Dom', selectedDays, setModalState),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Ejercicios (${exercises.length})', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle),
+                      onPressed: () {
+                        final exNameController = TextEditingController();
+                        final setsController = TextEditingController(text: '3');
+                        final repsController = TextEditingController(text: '10');
+                        final restController = TextEditingController(text: '60');
+                        
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Agregar Ejercicio'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(controller: exNameController, decoration: const InputDecoration(labelText: 'Nombre')),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Expanded(child: TextField(controller: setsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Series'))),
+                                    const SizedBox(width: 8),
+                                    Expanded(child: TextField(controller: repsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Reps'))),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                TextField(controller: restController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Descanso (seg)')),
+                              ],
+                            ),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (exNameController.text.isNotEmpty) {
+                                    exercises.add(RoutineExercise(
+                                      name: exNameController.text,
+                                      sets: int.tryParse(setsController.text) ?? 3,
+                                      reps: int.tryParse(repsController.text) ?? 10,
+                                      restSeconds: int.tryParse(restController.text) ?? 60,
+                                    ));
+                                    setModalState(() {});
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                child: const Text('Agregar'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                ...exercises.asMap().entries.map((e) => ListTile(
+                  leading: CircleAvatar(radius: 12, child: Text('${e.key + 1}')),
+                  title: Text(e.value.name),
+                  subtitle: Text('${e.value.sets}x${e.value.reps}'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.close, size: 18),
+                    onPressed: () {
+                      exercises.removeAt(e.key);
+                      setModalState(() {});
+                    },
+                  ),
+                )),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: exercises.isNotEmpty && nameController.text.isNotEmpty && selectedDays.isNotEmpty
+                        ? () async {
+                            final updatedRoutine = routine.copyWith(
+                              name: nameController.text,
+                              description: descController.text.isNotEmpty ? descController.text : null,
+                              exercises: exercises,
+                              weekDays: selectedDays.toList()..sort(),
+                            );
+                            await context.read<RoutineViewModel>().updateRoutine(updatedRoutine);
+                            if (mounted) Navigator.pop(context);
+                          }
+                        : null,
+                    child: const Text('Guardar Cambios'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

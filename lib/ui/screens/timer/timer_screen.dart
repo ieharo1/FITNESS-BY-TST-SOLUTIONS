@@ -73,12 +73,23 @@ class _TimerScreenState extends State<TimerScreen> {
   }
 
   void _playAlarm() async {
-    HapticFeedback.vibrate();
+    HapticFeedback.heavyImpact();
+    
+    for (int i = 0; i < 3; i++) {
+      await HapticFeedback.vibrate();
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+    
     try {
-      await _audioPlayer.play(UrlSource('https://www.soundjay.com/buttons/beep-01a.mp3'));
+      await _audioPlayer.play(AssetSource('sounds/alarm.mp3'));
       await _audioPlayer.setReleaseMode(ReleaseMode.loop);
     } catch (e) {
-      debugPrint('Error playing sound: $e');
+      try {
+        await _audioPlayer.play(UrlSource('https://www.soundjay.com/buttons/beep-01a.mp3'));
+        await _audioPlayer.setReleaseMode(ReleaseMode.loop);
+      } catch (e2) {
+        debugPrint('Error playing sound: $e2');
+      }
     }
     
     showDialog(

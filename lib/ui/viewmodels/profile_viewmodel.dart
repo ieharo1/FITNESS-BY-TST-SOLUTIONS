@@ -126,12 +126,18 @@ class ProfileViewModel extends ChangeNotifier {
         final updatedUser = existingUser.copyWith(photoUrl: photoUrl);
         await _userRepository.updateUser(updatedUser);
         _user = updatedUser;
+        _profilePhotoUrl = photoUrl;
       }
       
-      _profilePhotoUrl = photoUrl;
+      _userSubscription?.cancel();
+      _userSubscription = _userRepository.getUserStream(userId).listen((user) {
+        _user = user;
+        _profilePhotoUrl = user?.photoUrl;
+        _state = ProfileLoadingState.loaded;
+        notifyListeners();
+      });
 
       _isSaving = false;
-      _state = ProfileLoadingState.loaded;
       notifyListeners();
       return true;
     } catch (e) {

@@ -79,6 +79,7 @@ class RoutineViewModel extends ChangeNotifier {
       );
 
       await _routineRepository.createRoutine(routine);
+      _routines.insert(0, routine.copyWith(id: routine.userId));
       _state = RoutineLoadingState.loaded;
       notifyListeners();
       return true;
@@ -93,6 +94,7 @@ class RoutineViewModel extends ChangeNotifier {
   Future<bool> updateRoutine(RoutineModel routine) async {
     try {
       await _routineRepository.updateRoutine(routine);
+      notifyListeners();
       return true;
     } catch (e) {
       _errorMessage = e.toString();
@@ -104,6 +106,8 @@ class RoutineViewModel extends ChangeNotifier {
   Future<bool> deleteRoutine(String routineId) async {
     try {
       await _routineRepository.deleteRoutine(routineId);
+      _routines.removeWhere((r) => r.id == routineId);
+      notifyListeners();
       return true;
     } catch (e) {
       _errorMessage = e.toString();
