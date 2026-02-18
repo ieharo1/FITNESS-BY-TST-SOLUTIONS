@@ -68,8 +68,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final profileViewModel = context.read<ProfileViewModel>();
       final authViewModel = context.read<AuthViewModel>();
       
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              ),
+              SizedBox(width: 16),
+              Text('Guardando...'),
+            ],
+          ),
+          backgroundColor: AppTheme.primaryColor,
+          duration: Duration(seconds: 10),
+        ),
+      );
+      
       if (_selectedImage != null) {
-        await profileViewModel.updateProfilePhoto(_selectedImage!);
+        final photoSuccess = await profileViewModel.updateProfilePhoto(_selectedImage!);
+        if (!photoSuccess && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error al subir foto: ${profileViewModel.errorMessage}'),
+              backgroundColor: AppTheme.errorColor,
+            ),
+          );
+        }
       }
 
       final success = await profileViewModel.updateProfile(
@@ -223,10 +249,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             CircleAvatar(
               radius: 60,
               backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-              backgroundImage: profileViewModel.profilePhotoUrl != null
-                  ? NetworkImage(profileViewModel.profilePhotoUrl!)
-                  : null,
-              child: profileViewModel.profilePhotoUrl == null
+              backgroundImage: _selectedImage != null
+                  ? FileImage(_selectedImage!)
+                  : profileViewModel.profilePhotoUrl != null
+                      ? NetworkImage(profileViewModel.profilePhotoUrl!)
+                      : null,
+              child: _selectedImage == null && profileViewModel.profilePhotoUrl == null
                   ? const Icon(
                       Icons.person,
                       size: 60,
@@ -234,26 +262,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     )
                   : null,
             ),
-            if (_isEditing)
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: GestureDetector(
-                  onTap: _pickImage,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: AppTheme.primaryColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.primaryColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    color: Colors.white,
+                    size: 20,
                   ),
                 ),
               ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
