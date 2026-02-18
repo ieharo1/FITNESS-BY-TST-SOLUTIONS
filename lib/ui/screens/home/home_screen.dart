@@ -584,7 +584,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           _buildDrawerItem(context, Icons.home, 'Inicio', '/home', 0),
-          _buildDrawerItem(context, Icons.monitor_weight, 'Calculadora IMC', '/bmi', 1),
           _buildDrawerItem(context, Icons.local_fire_department, 'Calorías', '/calories', 2),
           _buildDrawerItem(context, Icons.straighten, 'Medidas Corporales', '/measurements', 3),
           _buildDrawerItem(context, Icons.fitness_center, 'Mis Rutinas', '/routines', 4),
@@ -594,6 +593,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const Divider(),
           _buildDrawerItem(context, Icons.trending_up, 'Progreso', '/progress', 8),
           _buildDrawerItem(context, Icons.person, 'Perfil', '/profile', 9),
+          _buildDrawerItem(context, Icons.help_outline, 'Ayuda / FAQ', '/faq', 10),
         ],
       ),
     );
