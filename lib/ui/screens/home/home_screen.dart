@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../viewmodels/auth_viewmodel.dart';
 import '../../viewmodels/home_viewmodel.dart';
+import '../../viewmodels/theme_provider.dart';
 import '../../theme/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -35,6 +36,14 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Fitness By TST'),
         actions: [
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return IconButton(
+                icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+                onPressed: () => themeProvider.toggleTheme(),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadData,
@@ -318,6 +327,26 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Rutinas de Hoy',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextButton.icon(
+              onPressed: () => context.push('/routines'),
+              icon: const Icon(Icons.arrow_forward, size: 18),
+              label: const Text('Ver todas'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _buildTodayRoutines(homeViewModel),
+        const SizedBox(height: 24),
         const Text(
           'Entrenamientos Recientes',
           style: TextStyle(
@@ -428,6 +457,97 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
       ],
+    );
+  }
+
+  Widget _buildTodayRoutines(HomeViewModel homeViewModel) {
+    final todayRoutines = homeViewModel.todayRoutines;
+    final completedRoutines = homeViewModel.completedRoutinesToday;
+
+    if (todayRoutines.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.event_available,
+              size: 48,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'No hay rutinas programadas para hoy',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => context.push('/routines'),
+              child: const Text('Crear una rutina'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: todayRoutines.map((routine) {
+        final isCompleted = completedRoutines.contains(routine.id);
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: isCompleted ? Border.all(color: Colors.green, width: 2) : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade200,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ListTile(
+            leading: Checkbox(
+              value: isCompleted,
+              activeColor: Colors.green,
+              onChanged: (value) {
+                if (value == true && !isCompleted) {
+                  homeViewModel.completeRoutine(routine);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('¡Rutina "${routine.name}" completada! +1 entrenamiento'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+            ),
+            title: Text(
+              routine.name,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                decoration: isCompleted ? TextDecoration.lineThrough : null,
+                color: isCompleted ? Colors.grey : null,
+              ),
+            ),
+            subtitle: Text(
+              '${routine.exercises.length} ejercicios • ${routine.estimatedMinutes} min',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            ),
+            trailing: isCompleted
+                ? const Icon(Icons.check_circle, color: Colors.green)
+                : const Icon(Icons.play_circle_outline, color: AppTheme.primaryColor),
+          ),
+        );
+      }).toList(),
     );
   }
 

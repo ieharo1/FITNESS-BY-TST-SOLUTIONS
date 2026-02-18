@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../viewmodels/auth_viewmodel.dart';
 import '../../viewmodels/routine_viewmodel.dart';
 import '../../theme/app_theme.dart';
@@ -211,6 +213,9 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
     final nameController = TextEditingController();
     final descController = TextEditingController();
     final exercises = <RoutineExercise>[];
+    final selectedDays = <int>{1, 3, 5};
+    File? selectedImage;
+    final ImagePicker _picker = ImagePicker();
 
     showModalBottomSheet(
       context: context,
@@ -238,6 +243,67 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
                 TextField(
                   controller: descController,
                   decoration: const InputDecoration(labelText: 'Descripción (opcional)'),
+                ),
+                const SizedBox(height: 16),
+                const Text('Selecciona los días de la semana:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    _buildDayChip(1, 'Lun', selectedDays, setModalState),
+                    _buildDayChip(2, 'Mar', selectedDays, setModalState),
+                    _buildDayChip(3, 'Mié', selectedDays, setModalState),
+                    _buildDayChip(4, 'Jue', selectedDays, setModalState),
+                    _buildDayChip(5, 'Vie', selectedDays, setModalState),
+                    _buildDayChip(6, 'Sáb', selectedDays, setModalState),
+                    _buildDayChip(7, 'Dom', selectedDays, setModalState),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Text('Imagen de la rutina (opcional):', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+                        if (image != null) {
+                          selectedImage = File(image.path);
+                          setModalState(() {});
+                        }
+                      },
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(12),
+                          image: selectedImage != null
+                              ? DecorationImage(image: FileImage(selectedImage!), fit: BoxFit.cover)
+                              : null,
+                        ),
+                        child: selectedImage == null
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.add_photo_alternate, color: Colors.grey.shade600),
+                                  const SizedBox(height: 4),
+                                  Text('Agregar', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                                ],
+                              )
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    if (selectedImage != null)
+                      TextButton(
+                        onPressed: () {
+                          selectedImage = null;
+                          setModalState(() {});
+                        },
+                        child: const Text('Quitar'),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -312,12 +378,13 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: exercises.isNotEmpty && nameController.text.isNotEmpty
+                    onPressed: exercises.isNotEmpty && nameController.text.isNotEmpty && selectedDays.isNotEmpty
                         ? () async {
                             await context.read<RoutineViewModel>().createRoutine(
                               name: nameController.text,
                               description: descController.text.isNotEmpty ? descController.text : null,
                               exercises: exercises,
+                              weekDays: selectedDays.toList()..sort(),
                             );
                             if (mounted) Navigator.pop(context);
                           }
@@ -331,6 +398,24 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDayChip(int day, String label, Set<int> selectedDays, StateSetter setModalState) {
+    final isSelected = selectedDays.contains(day);
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        if (selected) {
+          selectedDays.add(day);
+        } else {
+          selectedDays.remove(day);
+        }
+        setModalState(() {});
+      },
+      selectedColor: AppTheme.primaryColor.withValues(alpha: 0.2),
+      checkmarkColor: AppTheme.primaryColor,
     );
   }
 }

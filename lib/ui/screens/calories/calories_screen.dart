@@ -104,6 +104,34 @@ class _CaloriesScreenState extends State<CaloriesScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    '¿Qué es la TMB?',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue.shade700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Son las calorías que tu cuerpo quema en reposo. Es la energía mínima que necesitas para vivir.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.blue.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
@@ -325,8 +353,52 @@ class _CaloriesScreenState extends State<CaloriesScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '¿Qué son los macros?',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green.shade700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  _buildMacroInfo('Proteína', '${macros.proteinGrams.toStringAsFixed(0)}g', 'Construye músculos, esencial para recuperación'),
+                  _buildMacroInfo('Carbohidratos', '${macros.carbsGrams.toStringAsFixed(0)}g', 'Energía principal para tus entrenamientos'),
+                  _buildMacroInfo('Grasas', '${macros.fatGrams.toStringAsFixed(0)}g', 'Energía y absorción de vitaminas'),
+                ],
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMacroInfo(String name, String amount, String description) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Text(
+            '$name ($amount): ',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          ),
+          Expanded(
+            child: Text(
+              description,
+              style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -11,6 +11,7 @@ class RoutineModel {
   final List<int> weekDays;
   final DateTime createdAt;
   final bool isActive;
+  final String? imageUrl;
 
   RoutineModel({
     required this.id,
@@ -23,6 +24,7 @@ class RoutineModel {
     this.weekDays = const [1, 3, 5],
     required this.createdAt,
     this.isActive = true,
+    this.imageUrl,
   });
 
   factory RoutineModel.fromMap(Map<String, dynamic> map, String id) {

@@ -244,7 +244,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () => _showMealDetailsDialog(mealNames[index], caloriesPerMeal),
                       child: const Text('Ver detalles'),
                     ),
                   ],
@@ -253,6 +253,98 @@ class _NutritionScreenState extends State<NutritionScreen> {
             }),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showMealDetailsDialog(String mealName, int calories) {
+    final mealExamples = {
+      'Desayuno': {
+        'description': 'Comida importante para empezar el día con energía',
+        'examples': [
+          '• Avena con frutas y nueces',
+          '• Huevos revueltos con pan integral',
+          '• Yogur griego con miel',
+          '• Jugo de fruta natural',
+        ],
+        'tip': 'Incluye proteína y carbohidratos complejos',
+      },
+      'Almuerzo': {
+        'description': 'Comida principal del día, equilibra proteínas y carbohidratos',
+        'examples': [
+          '• Pollo a la plancha con arroz',
+          '• Pescado con verduras al vapor',
+          '• Ensalada con pollo o atún',
+          '• Pasta integral con salsa de tomate',
+        ],
+        'tip': 'Llena la mitad del plato con verduras',
+      },
+      'Cena': {
+        'description': 'Comida ligera para facilitar la digestión',
+        'examples': [
+          '• Pechuga de pollo con ensalada',
+          '• Sopa de verduras',
+          '• Pescado con verduras',
+          '• Tortilla francesa con ensalada',
+        ],
+        'tip': 'Evita carbohidratos pesados en la noche',
+      },
+    };
+
+    final mealData = mealExamples[mealName]!;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(mealName),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                mealData['description'] as String,
+                style: TextStyle(color: Colors.grey.shade600),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Ejemplos de $mealName ($calories kcal):',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              ...(mealData['examples'] as List<String>).map((e) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(e, style: const TextStyle(fontSize: 13)),
+              )),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.lightbulb, color: Colors.green.shade700, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        mealData['tip'] as String,
+                        style: TextStyle(fontSize: 12, color: Colors.green.shade700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
       ),
     );
   }

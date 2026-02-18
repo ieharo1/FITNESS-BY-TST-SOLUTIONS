@@ -36,6 +36,7 @@ class ProfileViewModel extends ChangeNotifier {
 
     _userSubscription = _userRepository.getUserStream(userId).listen((user) {
       _user = user;
+      _profilePhotoUrl = user?.photoUrl;
       _state = ProfileLoadingState.loaded;
       notifyListeners();
     }, onError: (error) {
@@ -119,6 +120,14 @@ class ProfileViewModel extends ChangeNotifier {
 
     try {
       final photoUrl = await _storageRepository.uploadProfilePhoto(userId, photoFile);
+      
+      final existingUser = await _userRepository.getUser(userId);
+      if (existingUser != null) {
+        final updatedUser = existingUser.copyWith(photoUrl: photoUrl);
+        await _userRepository.updateUser(updatedUser);
+        _user = updatedUser;
+      }
+      
       _profilePhotoUrl = photoUrl;
 
       _isSaving = false;

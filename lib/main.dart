@@ -16,6 +16,7 @@ import 'ui/viewmodels/measurements_viewmodel.dart';
 import 'ui/viewmodels/routine_viewmodel.dart';
 import 'ui/viewmodels/goals_viewmodel.dart';
 import 'ui/viewmodels/nutrition_viewmodel.dart';
+import 'ui/viewmodels/theme_provider.dart';
 import 'ui/theme/app_theme.dart';
 
 void main() async {
@@ -41,6 +42,7 @@ class FitTrackApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => WorkoutViewModel()),
@@ -53,11 +55,13 @@ class FitTrackApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => GoalsViewModel()),
         ChangeNotifierProvider(create: (_) => NutritionViewModel()),
       ],
-      child: Consumer<AuthViewModel>(
-        builder: (context, authViewModel, child) {
+      child: Consumer2<AuthViewModel, ThemeProvider>(
+        builder: (context, authViewModel, themeProvider, child) {
           return MaterialApp.router(
             title: 'Fitness By TST',
             theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             debugShowCheckedModeBanner: false,
             routerConfig: AppRouter.router(context),
           );

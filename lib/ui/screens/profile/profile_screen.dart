@@ -339,7 +339,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Text(
                 bmi > 0 ? bmi.toStringAsFixed(1) : '--',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: color,
                 ),

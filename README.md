@@ -12,17 +12,29 @@ Aplicación Android/iOS para seguimiento de tu rutina de ejercicios y progreso f
 - **Autenticación**: Registro e inicio de sesión con email y contraseña
 - **Gestión de Entrenamientos**: Agregar entrenamientos con ejercicios personalizados (series, repeticiones, peso)
 - **Seguimiento de Progreso**: Registrar peso y fotos de progreso
-- **Perfil de Usuario**: Editar información personal y objetivos fitness
-- **Dashboard**: Ver estadísticas y entrenamientos recientes
+- **Perfil de Usuario**: Editar información personal, objetivos fitness y foto de perfil
+- **Dashboard**: Ver estadísticas, rutinas del día y entrenamientos recientes
 - **Índice de Masa Corporal (IMC)**: Cálculo automático con categoría peso ideal
-- y **Estadísticas Gráficas**: Gráfico de evolución de peso con fl_chart
+- **Peso Ideal**: Cálculo del rango de peso ideal según altura
+- **Estadísticas Gráficas**: Gráfico de evolución de peso con fl_chart
+- **Foto de Perfil**: Subir y actualizar foto de perfil del usuario
+- **Rutinas Personalizadas**: Crear rutinas con ejercicios, días de la semana e imagen
+- **Rutinas del Día**: Ver y completar las rutinas programadas para hoy con check
+- **Temporizador**: Temporizador con alarma sonora para descansos
+- **Calorías**: Calculadora de calorías TMB y meta diaria con explicación
+- **Plan Nutricional**: Distribución de macros y ejemplos de comidas
+- **Modo Oscuro**: Soporte para tema claro y oscuro
+- **Medidas Corporales**: Registro de cintura, pecho, brazos, piernas
 
 ### Funcionalidades
 - **CRUD Completo**: Crear, leer, actualizar y eliminar entrenamientos y progreso
 - **Sincronización en Tiempo Real**: Los datos se guardan directamente en Firestore
 - **Fotos de Progreso**: Subir fotos al Storage de Firebase
+- **Foto de Perfil**: Subir y actualizar foto de perfil de usuario
+- **Completar Rutinas**: Marcar rutinas del día como completadas (+1 entrenamiento)
 - **Validaciones**: Validaciones en cliente y servidor
 - **Diseño Moderno**: Material Design 3 con interfaz intuitiva
+- **Tema Claro/Oscuro**: Toggle para cambiar entre modos
 
 ## Tecnologías
 
@@ -81,7 +93,8 @@ lib/
   "weight": number,
   "height": number,
   "goal": "string",
-  "createdAt": timestamp
+  "createdAt": timestamp,
+  "photoUrl": "string (opcional)"
 }
 ```
 
@@ -171,7 +184,7 @@ La app incluye las siguientes pantallas:
 - Home (Dashboard con estadísticas)
 - Agregar Entrenamiento
 - Progreso (Registro y Estadísticas)
-- Perfil (con IMC y peso ideal)
+- Perfil (con IMC, peso ideal y foto de perfil)
 
 ---
 

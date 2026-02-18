@@ -8,6 +8,7 @@ class UserModel {
   final double height;
   final String goal;
   final DateTime createdAt;
+  final String? photoUrl;
 
   UserModel({
     required this.id,
@@ -17,6 +18,7 @@ class UserModel {
     this.height = 0.0,
     this.goal = '',
     required this.createdAt,
+    this.photoUrl,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map, String id) {
@@ -28,6 +30,7 @@ class UserModel {
       height: (map['height'] ?? 0.0).toDouble(),
       goal: map['goal'] ?? '',
       createdAt: (map['createdAt'] as dynamic)?.toDate() ?? DateTime.now(),
+      photoUrl: map['photoUrl'],
     );
   }
 
@@ -39,6 +42,7 @@ class UserModel {
       'height': height,
       'goal': goal,
       'createdAt': createdAt,
+      'photoUrl': photoUrl,
     };
   }
 
@@ -50,6 +54,7 @@ class UserModel {
     double? height,
     String? goal,
     DateTime? createdAt,
+    String? photoUrl,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -59,6 +64,7 @@ class UserModel {
       height: height ?? this.height,
       goal: goal ?? this.goal,
       createdAt: createdAt ?? this.createdAt,
+      photoUrl: photoUrl ?? this.photoUrl,
     );
   }
 

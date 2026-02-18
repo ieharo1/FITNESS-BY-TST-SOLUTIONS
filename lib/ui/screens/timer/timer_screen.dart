@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../../theme/app_theme.dart';
 
 class TimerScreen extends StatefulWidget {
@@ -16,12 +17,14 @@ class _TimerScreenState extends State<TimerScreen> {
   int _remainingSeconds = 60;
   Timer? _timer;
   bool _isRunning = false;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   final List<int> _durations = [30, 60, 90, 120, 180];
 
   @override
   void dispose() {
     _timer?.cancel();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -69,16 +72,27 @@ class _TimerScreenState extends State<TimerScreen> {
     });
   }
 
-  void _playAlarm() {
+  void _playAlarm() async {
     HapticFeedback.vibrate();
+    try {
+      await _audioPlayer.play(UrlSource('https://www.soundjay.com/buttons/beep-01a.mp3'));
+      await _audioPlayer.setReleaseMode(ReleaseMode.loop);
+    } catch (e) {
+      debugPrint('Error playing sound: $e');
+    }
+    
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text('¡Descanso completado!'),
         content: const Text('Es hora de volver al entrenamiento.'),
         actions: [
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              _audioPlayer.stop();
+              Navigator.pop(context);
+            },
             child: const Text('Aceptar'),
           ),
         ],

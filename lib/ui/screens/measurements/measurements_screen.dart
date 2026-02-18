@@ -284,14 +284,13 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Nueva Medida', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _weightController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Peso (kg)', prefixIcon: Icon(Icons.monitor_weight)),
+            const Text('Nueva Medida Corporal', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text(
+              'Registra tus medidas corporales (excepto peso, usa Progreso para eso)',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _waistController,
               keyboardType: TextInputType.number,
@@ -320,17 +319,14 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                  final weight = double.tryParse(_weightController.text);
-                  if (weight != null && weight > 0) {
-                    await context.read<MeasurementsViewModel>().addMeasurement(
-                      weight: weight,
-                      waist: double.tryParse(_waistController.text),
-                      chest: double.tryParse(_chestController.text),
-                      arm: double.tryParse(_armController.text),
-                      leg: double.tryParse(_legController.text),
-                    );
-                    if (mounted) Navigator.pop(context);
-                  }
+                  await context.read<MeasurementsViewModel>().addMeasurement(
+                    weight: 0,
+                    waist: double.tryParse(_waistController.text),
+                    chest: double.tryParse(_chestController.text),
+                    arm: double.tryParse(_armController.text),
+                    leg: double.tryParse(_legController.text),
+                  );
+                  if (mounted) Navigator.pop(context);
                 },
                 child: const Text('Guardar'),
               ),
