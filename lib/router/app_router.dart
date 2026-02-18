@@ -19,7 +19,9 @@ import '../ui/screens/faq/faq_screen.dart';
 import '../ui/screens/achievements/achievements_screen.dart';
 import '../ui/screens/export/export_data_screen.dart';
 import '../ui/screens/about/about_screen.dart';
+import '../ui/screens/tutorial/tutorial_screen.dart';
 import '../ui/viewmodels/auth_viewmodel.dart';
+import '../services/local_cache_service.dart';
 
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -40,6 +42,13 @@ class AppRouter {
         }
         
         if (isAuthenticated && isLoggingIn) {
+          if (!LocalCacheService.isTutorialCompleted()) {
+            return '/tutorial';
+          }
+          return '/home';
+        }
+        
+        if (isAuthenticated && state.matchedLocation == '/tutorial') {
           return '/home';
         }
         
@@ -117,6 +126,10 @@ class AppRouter {
         GoRoute(
           path: '/about',
           builder: (context, state) => const AboutScreen(),
+        ),
+        GoRoute(
+          path: '/tutorial',
+          builder: (context, state) => const TutorialScreen(),
         ),
       ],
     );

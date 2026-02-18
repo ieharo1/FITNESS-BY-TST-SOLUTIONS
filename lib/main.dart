@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
 import 'router/app_router.dart';
+import 'services/local_cache_service.dart';
 import 'ui/viewmodels/auth_viewmodel.dart';
 import 'ui/viewmodels/home_viewmodel.dart';
 import 'ui/viewmodels/workout_viewmodel.dart';
@@ -32,6 +33,8 @@ void main() async {
   );
   
   await initializeDateFormatting('es_ES', null);
+  await LocalCacheService.initialize();
+  
   runApp(const FitTrackApp());
 }
 
