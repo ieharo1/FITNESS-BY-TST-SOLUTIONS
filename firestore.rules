@@ -34,9 +34,6 @@ service cloud.firestore {
     match /workouts/{workoutId} {
       allow read: if isAuthenticated() 
                   && resource.data.userId == request.auth.uid;
-      allow list: if isAuthenticated() 
-                  && request.query.limit <= 100
-                  && request.query.where.userId == request.auth.uid;
       allow create: if isAuthenticated()
                     && request.resource.data.userId == request.auth.uid
                     && request.resource.data.type is string
@@ -54,9 +51,6 @@ service cloud.firestore {
     match /progress/{progressId} {
       allow read: if isAuthenticated() 
                   && resource.data.userId == request.auth.uid;
-      allow list: if isAuthenticated() 
-                  && request.query.limit <= 100
-                  && request.query.where.userId == request.auth.uid;
       allow create: if isAuthenticated()
                     && request.resource.data.userId == request.auth.uid
                     && request.resource.data.weight is number
@@ -66,6 +60,58 @@ service cloud.firestore {
                     && request.resource.data.userId == resource.data.userId;
       allow delete: if isAuthenticated() 
                     && resource.data.userId == request.auth.uid;
+    }
+
+    // MEASUREMENTS COLLECTION
+    // Users can only access their own body measurements
+    match /measurements/{measurementId} {
+      allow read: if isAuthenticated()
+                  && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.date is timestamp
+                    && request.resource.data.weight is number;
+      allow update: if isAuthenticated()
+                    && resource.data.userId == request.auth.uid
+                    && request.resource.data.userId == resource.data.userId;
+      allow delete: if isAuthenticated()
+                    && resource.data.userId == request.auth.uid;
+    }
+
+    // GOALS COLLECTION
+    match /goals/{goalId} {
+      allow read: if isAuthenticated()
+                  && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+                    && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated()
+                    && resource.data.userId == request.auth.uid
+                    && request.resource.data.userId == resource.data.userId;
+      allow delete: if false;
+    }
+
+    // STREAKS COLLECTION
+    match /streaks/{streakId} {
+      allow read: if isAuthenticated()
+                  && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+                    && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated()
+                    && resource.data.userId == request.auth.uid
+                    && request.resource.data.userId == resource.data.userId;
+      allow delete: if false;
+    }
+
+    // ACHIEVEMENTS COLLECTION
+    match /achievements/{achievementId} {
+      allow read: if isAuthenticated()
+                  && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+                    && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated()
+                    && resource.data.userId == request.auth.uid
+                    && request.resource.data.userId == resource.data.userId;
+      allow delete: if false;
     }
   }
 }

@@ -7,6 +7,11 @@ class MeasurementsRepository {
   final Uuid _uuid = const Uuid();
   static const String _collectionName = 'measurements';
 
+  List<MeasurementsModel> _sortByDateDesc(List<MeasurementsModel> items) {
+    items.sort((a, b) => b.date.compareTo(a.date));
+    return items;
+  }
+
   Future<String> addMeasurement(MeasurementsModel measurement) async {
     try {
       final id = _uuid.v4();
@@ -38,12 +43,12 @@ class MeasurementsRepository {
     return _firestore
         .collection(_collectionName)
         .where('userId', isEqualTo: userId)
-        .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
+      final items = snapshot.docs
           .map((doc) => MeasurementsModel.fromMap(doc.data(), doc.id))
           .toList();
+      return _sortByDateDesc(items);
     });
   }
 
@@ -52,11 +57,11 @@ class MeasurementsRepository {
       final snapshot = await _firestore
           .collection(_collectionName)
           .where('userId', isEqualTo: userId)
-          .orderBy('date', descending: true)
           .get();
-      return snapshot.docs
+      final items = snapshot.docs
           .map((doc) => MeasurementsModel.fromMap(doc.data(), doc.id))
           .toList();
+      return _sortByDateDesc(items);
     } catch (e) {
       throw Exception('Failed to get measurements: $e');
     }
@@ -66,13 +71,14 @@ class MeasurementsRepository {
     return _firestore
         .collection(_collectionName)
         .where('userId', isEqualTo: userId)
-        .orderBy('date', descending: true)
-        .limit(1)
         .snapshots()
         .map((snapshot) {
-      if (snapshot.docs.isNotEmpty) {
-        return MeasurementsModel.fromMap(
-            snapshot.docs.first.data(), snapshot.docs.first.id);
+      final items = snapshot.docs
+          .map((doc) => MeasurementsModel.fromMap(doc.data(), doc.id))
+          .toList();
+      if (items.isNotEmpty) {
+        _sortByDateDesc(items);
+        return items.first;
       }
       return null;
     });
@@ -83,12 +89,13 @@ class MeasurementsRepository {
       final snapshot = await _firestore
           .collection(_collectionName)
           .where('userId', isEqualTo: userId)
-          .orderBy('date', descending: true)
-          .limit(1)
           .get();
-      if (snapshot.docs.isNotEmpty) {
-        return MeasurementsModel.fromMap(
-            snapshot.docs.first.data(), snapshot.docs.first.id);
+      final items = snapshot.docs
+          .map((doc) => MeasurementsModel.fromMap(doc.data(), doc.id))
+          .toList();
+      if (items.isNotEmpty) {
+        _sortByDateDesc(items);
+        return items.first;
       }
       return null;
     } catch (e) {

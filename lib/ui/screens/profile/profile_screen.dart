@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -23,6 +25,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
   bool _isEditing = false;
+
+  Uint8List? _decodeBase64Image(String value) {
+    try {
+      final data = value.contains(',') ? value.split(',').last : value;
+      return base64Decode(data);
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   void initState() {
@@ -242,6 +253,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileHeader(ProfileViewModel profileViewModel) {
+    ImageProvider? imageProvider;
+    if (_selectedImage != null) {
+      imageProvider = FileImage(_selectedImage!);
+    } else if (profileViewModel.profilePhotoUrl != null && profileViewModel.profilePhotoUrl!.isNotEmpty) {
+      final photoValue = profileViewModel.profilePhotoUrl!;
+      if (photoValue.startsWith('http://') || photoValue.startsWith('https://')) {
+        imageProvider = NetworkImage(photoValue);
+      } else {
+        final bytes = _decodeBase64Image(photoValue);
+        if (bytes != null) {
+          imageProvider = MemoryImage(bytes);
+        }
+      }
+    }
+
     return Column(
       children: [
         Stack(
@@ -249,12 +275,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             CircleAvatar(
               radius: 60,
               backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-              backgroundImage: _selectedImage != null
-                  ? FileImage(_selectedImage!)
-                  : profileViewModel.profilePhotoUrl != null
-                      ? NetworkImage(profileViewModel.profilePhotoUrl!)
-                      : null,
-              child: _selectedImage == null && profileViewModel.profilePhotoUrl == null
+              backgroundImage: imageProvider,
+              child: imageProvider == null
                   ? const Icon(
                       Icons.person,
                       size: 60,

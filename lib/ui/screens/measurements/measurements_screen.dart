@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import '../../../model/measurements_model.dart';
 import '../../viewmodels/auth_viewmodel.dart';
 import '../../viewmodels/measurements_viewmodel.dart';
 import '../../theme/app_theme.dart';
@@ -21,6 +22,8 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
   final _armController = TextEditingController();
   final _legController = TextEditingController();
   final _hipsController = TextEditingController();
+  final _shouldersController = TextEditingController();
+  final _notesController = TextEditingController();
 
   @override
   void initState() {
@@ -41,7 +44,95 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
     _armController.dispose();
     _legController.dispose();
     _hipsController.dispose();
+    _shouldersController.dispose();
+    _notesController.dispose();
     super.dispose();
+  }
+
+  void _showMessage(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? AppTheme.errorColor : AppTheme.successColor,
+      ),
+    );
+  }
+
+  void _clearControllers() {
+    _weightController.clear();
+    _waistController.clear();
+    _chestController.clear();
+    _armController.clear();
+    _legController.clear();
+    _hipsController.clear();
+    _shouldersController.clear();
+    _notesController.clear();
+  }
+
+  void _fillControllers(MeasurementsModel measurement) {
+    _weightController.text = measurement.weight.toString();
+    _waistController.text = measurement.waist?.toString() ?? '';
+    _chestController.text = measurement.chest?.toString() ?? '';
+    _armController.text = measurement.arm?.toString() ?? '';
+    _legController.text = measurement.leg?.toString() ?? '';
+    _hipsController.text = measurement.hips?.toString() ?? '';
+    _shouldersController.text = measurement.shoulders?.toString() ?? '';
+    _notesController.text = measurement.notes ?? '';
+  }
+
+  double _resolveWeight(MeasurementsModel? existing, MeasurementsViewModel viewModel) {
+    final parsed = double.tryParse(_weightController.text.trim());
+    if (parsed != null) return parsed;
+    if (existing != null) return existing.weight;
+    return viewModel.latestMeasurement?.weight ?? 0;
+  }
+
+  Future<void> _saveMeasurement({MeasurementsModel? existing}) async {
+    final viewModel = context.read<MeasurementsViewModel>();
+    final isEditing = existing != null;
+    final success = isEditing
+        ? await viewModel.updateMeasurement(
+            existing.copyWith(
+              weight: _resolveWeight(existing, viewModel),
+              waist: double.tryParse(_waistController.text.trim()),
+              chest: double.tryParse(_chestController.text.trim()),
+              arm: double.tryParse(_armController.text.trim()),
+              leg: double.tryParse(_legController.text.trim()),
+              hips: double.tryParse(_hipsController.text.trim()),
+              shoulders: double.tryParse(_shouldersController.text.trim()),
+              notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
+              date: DateTime.now(),
+            ),
+          )
+        : await viewModel.addMeasurement(
+            weight: _resolveWeight(null, viewModel),
+            waist: double.tryParse(_waistController.text.trim()),
+            chest: double.tryParse(_chestController.text.trim()),
+            arm: double.tryParse(_armController.text.trim()),
+            leg: double.tryParse(_legController.text.trim()),
+            hips: double.tryParse(_hipsController.text.trim()),
+            shoulders: double.tryParse(_shouldersController.text.trim()),
+            notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
+          );
+
+    if (success) {
+      _clearControllers();
+      if (mounted) Navigator.pop(context);
+      _showMessage(isEditing ? 'Medida actualizada' : 'Medida guardada');
+    } else {
+      _showMessage(viewModel.errorMessage ?? 'No se pudo guardar la medida', isError: true);
+    }
+  }
+
+  Future<void> _deleteMeasurement(String id) async {
+    final success = await context.read<MeasurementsViewModel>().deleteMeasurement(id);
+    if (!success) {
+      final error = context.read<MeasurementsViewModel>().errorMessage ?? 'No se pudo eliminar el registro';
+      _showMessage(error, isError: true);
+      return;
+    }
+    _showMessage('Registro eliminado');
   }
 
   @override
@@ -64,6 +155,34 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
         builder: (context, measurementsViewModel, child) {
           if (measurementsViewModel.state == MeasurementsLoadingState.loading) {
             return const Center(child: CircularProgressIndicator());
+          }
+          if (measurementsViewModel.state == MeasurementsLoadingState.error) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.error_outline, color: AppTheme.errorColor, size: 48),
+                    const SizedBox(height: 12),
+                    Text(
+                      measurementsViewModel.errorMessage ?? 'Error cargando medidas',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        final userId = context.read<AuthViewModel>().currentUserId;
+                        if (userId != null) {
+                          context.read<MeasurementsViewModel>().loadMeasurements(userId);
+                        }
+                      },
+                      child: const Text('Reintentar'),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
 
           return SingleChildScrollView(
@@ -256,9 +375,18 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                     ),
                     title: Text(DateFormat('dd MMM yyyy', 'es_ES').format(m.date)),
                     subtitle: Text('Peso: ${m.weight} kg'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      onPressed: () => viewModel.deleteMeasurement(m.id),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit_outlined),
+                          onPressed: () => _showAddMeasurementDialog(existing: m),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, color: Colors.red),
+                          onPressed: () => _deleteMeasurement(m.id),
+                        ),
+                      ],
                     ),
                   );
                 },
@@ -269,7 +397,13 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
     );
   }
 
-  void _showAddMeasurementDialog() {
+  void _showAddMeasurementDialog({MeasurementsModel? existing}) {
+    if (existing != null) {
+      _fillControllers(existing);
+    } else {
+      _clearControllers();
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -284,13 +418,22 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Nueva Medida Corporal', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(
+              existing == null ? 'Nueva Medida Corporal' : 'Editar Medida Corporal',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             Text(
-              'Registra tus medidas corporales (excepto peso, usa Progreso para eso)',
+              'Registra o actualiza tus medidas corporales',
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 16),
+            TextFormField(
+              controller: _weightController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Peso (kg, opcional)', prefixIcon: Icon(Icons.monitor_weight)),
+            ),
+            const SizedBox(height: 12),
             TextFormField(
               controller: _waistController,
               keyboardType: TextInputType.number,
@@ -314,21 +457,30 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: 'Pierna (cm)', prefixIcon: Icon(Icons.directions_walk)),
             ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _hipsController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Caderas (cm)', prefixIcon: Icon(Icons.accessibility_new)),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _shouldersController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Hombros (cm)', prefixIcon: Icon(Icons.accessibility)),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _notesController,
+              maxLines: 2,
+              decoration: const InputDecoration(labelText: 'Notas (opcional)', prefixIcon: Icon(Icons.note_alt_outlined)),
+            ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () async {
-                  await context.read<MeasurementsViewModel>().addMeasurement(
-                    weight: 0,
-                    waist: double.tryParse(_waistController.text),
-                    chest: double.tryParse(_chestController.text),
-                    arm: double.tryParse(_armController.text),
-                    leg: double.tryParse(_legController.text),
-                  );
-                  if (mounted) Navigator.pop(context);
-                },
-                child: const Text('Guardar'),
+                onPressed: () => _saveMeasurement(existing: existing),
+                child: Text(existing == null ? 'Guardar' : 'Actualizar'),
               ),
             ),
             const SizedBox(height: 16),

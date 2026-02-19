@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../../repository/user_repository.dart';
-import '../../repository/storage_repository.dart';
 import '../../repository/auth_repository.dart';
 import '../../model/user_model.dart';
 
@@ -10,7 +10,6 @@ enum ProfileLoadingState { initial, loading, loaded, error, saving }
 
 class ProfileViewModel extends ChangeNotifier {
   final UserRepository _userRepository = UserRepository();
-  final StorageRepository _storageRepository = StorageRepository();
   final AuthRepository _authRepository = AuthRepository();
 
   ProfileLoadingState _state = ProfileLoadingState.initial;
@@ -119,14 +118,29 @@ class ProfileViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final photoUrl = await _storageRepository.uploadProfilePhoto(userId, photoFile);
+      final bytes = await photoFile.readAsBytes();
+      if (bytes.length > 700 * 1024) {
+        throw Exception('La imagen es muy grande. Usa una de menos de 700 KB.');
+      }
+      final photoBase64 = base64Encode(bytes);
       
       final existingUser = await _userRepository.getUser(userId);
       if (existingUser != null) {
-        final updatedUser = existingUser.copyWith(photoUrl: photoUrl);
+        final updatedUser = existingUser.copyWith(photoUrl: photoBase64);
         await _userRepository.updateUser(updatedUser);
         _user = updatedUser;
-        _profilePhotoUrl = photoUrl;
+        _profilePhotoUrl = photoBase64;
+      } else {
+        final newUser = UserModel(
+          id: userId,
+          name: _authRepository.currentUser?.displayName ?? 'Usuario',
+          email: _authRepository.currentUser?.email ?? '',
+          createdAt: DateTime.now(),
+          photoUrl: photoBase64,
+        );
+        await _userRepository.createUser(newUser);
+        _user = newUser;
+        _profilePhotoUrl = photoBase64;
       }
       
       _userSubscription?.cancel();

@@ -39,7 +39,9 @@ class _TimerScreenState extends State<TimerScreen> {
       setState(() {
         if (_remainingSeconds > 0) {
           _remainingSeconds--;
-        } else {
+        }
+
+        if (_remainingSeconds == 0) {
           _timer?.cancel();
           _isRunning = false;
           _playAlarm();
@@ -81,17 +83,19 @@ class _TimerScreenState extends State<TimerScreen> {
     }
     
     try {
-      await _audioPlayer.play(AssetSource('sounds/alarm.mp3'));
       await _audioPlayer.setReleaseMode(ReleaseMode.loop);
+      await _audioPlayer.play(AssetSource('sounds/alarm.wav'));
     } catch (e) {
       try {
-        await _audioPlayer.play(UrlSource('https://www.soundjay.com/buttons/beep-01a.mp3'));
         await _audioPlayer.setReleaseMode(ReleaseMode.loop);
+        await _audioPlayer.play(UrlSource('https://www.soundjay.com/buttons/beep-01a.mp3'));
       } catch (e2) {
         debugPrint('Error playing sound: $e2');
       }
     }
-    
+
+    if (!mounted) return;
+
     showDialog(
       context: context,
       barrierDismissible: false,

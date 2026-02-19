@@ -1,12 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../../viewmodels/auth_viewmodel.dart';
 import '../../viewmodels/goals_viewmodel.dart';
 import '../../../model/badge_model.dart';
 import '../../theme/app_theme.dart';
 
-class AchievementsScreen extends StatelessWidget {
+class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
+
+  @override
+  State<AchievementsScreen> createState() => _AchievementsScreenState();
+}
+
+class _AchievementsScreenState extends State<AchievementsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authViewModel = context.read<AuthViewModel>();
+      final userId = authViewModel.currentUserId;
+      if (userId != null) {
+        context.read<GoalsViewModel>().loadGoals(userId);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
